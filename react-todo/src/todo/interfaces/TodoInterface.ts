@@ -4,4 +4,4 @@ export interface TodoInterface {
   priority: 'Low' | 'Medium' | 'High';
   dueDate?: Date | null;
   done: boolean;
-  }
+}

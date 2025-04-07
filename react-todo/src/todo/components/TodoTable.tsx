@@ -5,6 +5,7 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridRowParams, GridRowsProp
 import { TodoInterface } from "../interfaces/TodoInterface";
 import { todoReducer } from "../../context/TodoReducer";
 import { Checkbox } from "@mui/material";
+import { EditTodoButton } from "./EditTodoButton";
 
 
 
@@ -47,12 +48,11 @@ export const TodoTable = () => {
     };
 
 
-    const handleEdit = (row: TodoInterface) => {
-        console.log('Editar:', row);
+    const handleEdit = (id: number) => {
         
         const action = {
-            type: '[TODO] Add Todo',
-            payload: newTodo
+            type: 'GetById Todo',
+            payload: id
         }
         dispatch( action );
         // Implementa tu lógica de edición aquí
@@ -79,13 +79,15 @@ export const TodoTable = () => {
 
     const handleToggleDone = (id: number) => {
         console.log('done:', id);
-        // Implementa tu lógica de borrado aquí
         const action = {
             type: 'Toogle Done',
             payload: id
         }
-
         dispatch( action );
+        const updatedAllTodos = allTodos.map(todo =>
+            todo.id === id ? { ...todo, done: !todo.done } : todo
+          );
+          setAllTodos(updatedAllTodos);
     };
 
     const getColumns = () => {
@@ -108,7 +110,8 @@ export const TodoTable = () => {
         })
         arr.push({field: 'actions', headerName: 'actions', width: 150, renderCell: (params) => (
             <div>
-              <button className="btn" onClick={() => handleEdit(params.row)}>Edit</button>
+              {/* <button className="btn" onClick={() => handleEdit(params.row)}>Edit</button> */}
+              <EditTodoButton id = {params.row.id}/>
               <button className="btn" onClick={() => handleDelete(params.row.id)}>Delete</button>
             </div>)
             });
@@ -178,6 +181,7 @@ export const TodoTable = () => {
                     columns={columns}
                     getRowClassName={getRowStyle}
                 />
+                
             </div>
         </>
     )

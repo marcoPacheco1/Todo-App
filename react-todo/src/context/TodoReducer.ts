@@ -1,25 +1,30 @@
 // { type: [todo remove], payload: id }
 
 import { TodoFilter } from "../todo/interfaces/TodoFilter";
+import { TodoInterface } from "../todo/interfaces/TodoInterface";
 
 export const todoReducer = ( initialStateTodo = [], action ) => {
 
     switch ( action.type ) {
         case 'Add Todo':
             console.log("Adding  ");
+            console.log(action.payload);
             
+            const newTodoElement:TodoInterface = {
+                id: new Date().getTime(),
+                done: false,
+                // priority: action.payload.priority,
+                ...action.payload
+            }
+            console.log(newTodoElement);
+            
+
+            return [...initialStateTodo, newTodoElement];
             // console.log(initialStateTodo);
             
             // return [ ...initialStateTodo, action.payload ];
 
         case 'Delete Todo':
-            console.log(initialStateTodo);
-            console.log(action.payload);
-            
-
-            console.log('deleting');
-            
-            // return initialStateTodo;
             return initialStateTodo.filter( todo => todo.id !== action.payload );
 
         case 'Toogle Done':
@@ -41,6 +46,20 @@ export const todoReducer = ( initialStateTodo = [], action ) => {
         
         case 'Reset Todo':
             return action.payload;
+
+        case 'Update Todo':
+            console.log('actualizando');
+            const n = initialStateTodo.map(todo =>
+                todo.id === action.payload.id
+                    ? {
+                        ...todo,
+                        ...action.payload,
+                        dueDate: new Date(action.payload.dueDate), // Convertir a Date si es necesario
+                    }
+                    : todo
+                );
+            console.log(n);
+            return n;
 
         case 'Filter Todo':
             // {taskName: 'query', priority: 'High', state: 'Done'}

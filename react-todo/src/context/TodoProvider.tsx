@@ -20,7 +20,7 @@ const listTodo:TodoInterface[] = [
         id: 123,
         taskName: 'task 1',
         priority: 'Low',
-        dueDate: new Date(),
+        dueDate: new Date('2025/04/9'),
     },
     {
         done: false,
