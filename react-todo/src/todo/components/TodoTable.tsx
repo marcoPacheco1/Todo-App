@@ -36,7 +36,8 @@ export const TodoTable = () => {
     // ];
 
 
-    const { todos, dispatch } = useContext( TodoContext );
+    const { todos, dispatch, setAllTodos, allTodos } = useContext( TodoContext );
+
 
     const columnKeys = () =>{
         if (todos && todos.length > 0) {
@@ -64,8 +65,16 @@ export const TodoTable = () => {
             type: 'Delete Todo',
             payload: id
         }
-
         dispatch( action );
+        console.log('filter');
+        
+        console.log(todos);
+        console.log("all");
+        
+        console.log(todos);
+        
+        const updatedAllTodos = allTodos.filter(todo => todo.id !== id);
+        setAllTodos(updatedAllTodos);
     };
 
     const handleToggleDone = (id: number) => {

@@ -39,10 +39,14 @@ export const todoReducer = ( initialStateTodo = [], action ) => {
                 return todo;
             });
         
+        case 'Reset Todo':
+            return action.payload;
+
         case 'Filter Todo':
             // {taskName: 'query', priority: 'High', state: 'Done'}
             console.log('filtranod');
-            let filteredTasks = [...initialStateTodo];
+            // let filteredTasks = [...initialStateTodo];
+            let filteredTasks = initialStateTodo.map(todo => ({ ...todo }));
             
             
             if (action.payload.hasOwnProperty('taskName')){
@@ -55,14 +59,6 @@ export const todoReducer = ( initialStateTodo = [], action ) => {
             }
 
             if (action.payload.hasOwnProperty('state')){
-                // if (action.payload['state'] === 'Undone'){
-                //     action.payload['state'] = false;
-                // }
-                // else{
-                //     console.log('entre',action.payload['state'] );
-                //     action.payload['state'] = true;
-                // }
-                
                 filteredTasks= filteredTasks.filter( todo => {
                     if (action.payload['state'] === 'Undone')
                         return todo['done'] === false 

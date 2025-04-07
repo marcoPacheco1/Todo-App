@@ -50,13 +50,13 @@ const init = () => {
 
 export const TodoProvider = ({ children }) => {
 
-    const [allTodos, setTodos] = useState(listTodo);
-    const [ todos, dispatch ] = useReducer( todoReducer, listTodo );
+    const [allTodos, setAllTodos] = useState(listTodo);
+    const [ todos, dispatch ] = useReducer( todoReducer, allTodos );
 
 
     return (
         
-        <TodoContext.Provider value={{ allTodos,todos, dispatch }}>
+        <TodoContext.Provider value={{ allTodos, setAllTodos,todos, dispatch }}>
             { children }
         </TodoContext.Provider>
     )

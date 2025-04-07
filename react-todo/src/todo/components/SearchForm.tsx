@@ -9,23 +9,20 @@ export const SearchForm = () => {
 
     const { taskName, priority, state } = formState;
 
+    const onResetFilter = () => {
+        dispatch({ type: 'Reset Todo', payload: allTodos });
+    };
+
     const onSearchSubmit = (event) =>{
         event.preventDefault();
+        onResetFilter();
         const {target} = event;
-        console.log(target);
 
-        console.log(formState);
-        
-        
         const action = {
             type: 'Filter Todo',
             payload: formState
         }
         dispatch( action );
-
-        // if ( searchText.trim().length <= 1 ) return;
-    
-        // navigate(`?q=${ searchText }`);
     }
 
 
