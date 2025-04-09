@@ -24,8 +24,7 @@ export const Metrics = () => {
   const formatSecondsToHHMMSS = (totalSeconds: number): string => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-  
+    const seconds = totalSeconds % 60;    
     const formattedHours = String(hours).padStart(2, '0');
     const formattedMinutes = String(minutes).padStart(2, '0');
     const formattedSeconds = String(seconds).padStart(2, '0');
@@ -40,7 +39,7 @@ export const Metrics = () => {
   const calculateAverageTime = (todosList) =>{
     const secondsToFinish: number[] = [];
     todosList.map( (todo:TodoInterface) => {
-        const seconds = differenceInSeconds(todo.dueDate, new Date());
+        const seconds = differenceInSeconds(todo.dueDate, new Date());        
         if (seconds> 0)
           secondsToFinish.push(seconds);
         // let a= format((seconds * 1000), 'mm:ss')
@@ -51,32 +50,45 @@ export const Metrics = () => {
     for(let i = 0; i < secondsToFinish.length; i++) {
       secondsTotalTask += secondsToFinish[i];
     }
-    var avg = secondsTotalTask / secondsToFinish.length;
+    let avg = 0;
+    if (secondsToFinish.length > 0)
+      avg = secondsTotalTask / secondsToFinish.length;
+    
     const formattedTime = formatSecondsToHHMMSS(avg); 
-    console.log(formattedTime);
+    // console.log(formattedTime);
     return formattedTime;
   }
 
   const lowPriorityTodos = filterTodosByPriority(todos, 'Low');
   
-  console.log('Low Priority Todos:', calculateAverageTime(lowPriorityTodos));
+  // console.log('Low Priority Todos:', calculateAverageTime(lowPriorityTodos));
 
   const highPriorityTodos = filterTodosByPriority(todos, 'High');
-  console.log('High Priority Todos:', calculateAverageTime(highPriorityTodos));
+
+  // console.log('High Priority Todos:', calculateAverageTime(highPriorityTodos));
 
   const mediumPriorityTodos = filterTodosByPriority(todos, 'Medium');
-  console.log('Medium Priority Todos:', calculateAverageTime(mediumPriorityTodos));
+  console.log(mediumPriorityTodos);
+
+  // console.log('Medium Priority Todos:', calculateAverageTime(mediumPriorityTodos));
 
   return (
     <>
-      <div>Average</div>
-      <p>{calculateAverageTime(todos)}</p>
-      <div>High</div>
-      <p>{calculateAverageTime(highPriorityTodos)}</p>
-      <div>Medium</div>
-      <p>{calculateAverageTime(mediumPriorityTodos)}</p>
-      <div>Low</div>
-      <p>{calculateAverageTime(lowPriorityTodos)}</p>
+      <div>
+        <div className="row align-items-center border rounded p-2">
+          <div className="col">
+            <h6 className="mb-0">Average time to finish tasks:</h6>
+            <p className="mb-0">{calculateAverageTime(todos)}</p>
+          </div>
+          
+          <div className="col">
+            <h6 className="mb-0">Average time to finish tasks by priority:</h6>
+            <p className="mb-0">High: {calculateAverageTime(highPriorityTodos)}</p>
+            <p className="mb-0">Medium: {calculateAverageTime(mediumPriorityTodos)}</p>
+            <p className="mb-0">Low: {calculateAverageTime(lowPriorityTodos)}</p>
+          </div>
+        </div>
+      </div>
     </>
   )
 }

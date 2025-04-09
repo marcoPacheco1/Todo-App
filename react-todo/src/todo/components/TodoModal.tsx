@@ -6,6 +6,7 @@ import DatePicker from "react-datepicker";
 
 import 'react-datepicker/dist/react-datepicker.css';
 import { TodoContext } from "../../context/TodoContext";
+import todoApi from "../../api/TodoApi";
 
 
 const style = {
@@ -24,7 +25,7 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
     // const [open, setOpen] = useState(false);
     // const handleOpen = () => setOpen(true);
     // const handleClose = () => setOpen(false);
-    const {allTodos, todos, dispatch, setAllTodos } = useContext( TodoContext );
+    const {allTodos, todos, dispatch, setAllTodosm, getAll, postTodo, updateTodo } = useContext( TodoContext );
     
     const [ formSubmitted, setFormSubmitted ] = useState(false);
 
@@ -66,11 +67,12 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         });
     }
 
+    
 
     const onSubmit = async( event ) => {
-        console.log("enviado");
         
         event.preventDefault();
+    
         setFormSubmitted(true);
 
         const difference = differenceInSeconds( formValues.dueDate, new Date() );
@@ -87,11 +89,25 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         // Valores del formulario
         console.log(formValues);
 
-        // TODO: 
+        // BACKEND 
+
+        if ('id' in formValues) {
+            //update
+            // const { data } = await todoApi.get('', formValues );
+            updateTodo(formValues)
+        }
+        else{
+            //new
+            // const { data } = await todoApi.get('', formValues );
+
+            postTodo(formValues)
+        }
+
         // await startSavingEvent( formValues );
-        // llegar al backend
-        // Todo bien
-        if( formValues.id ) {
+        // const { data } = await todoApi.post('', formValues );
+
+    /*
+        if( data.id ) {
             // Actualizando
             const action = {
                 type: 'Update Todo',
@@ -99,7 +115,8 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
             }
             dispatch( action );
 
-
+            await getAll();
+            // update updatedAllTodos
             const updatedAllTodos = allTodos.map(todo =>
                 todo.id === formValues.id ? formValues : todo
             );
@@ -114,6 +131,7 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
             dispatch( action );
             // dispatch( onAddNewEvent({ ...calendarEvent, _id: new Date().getTime() }) );
         }
+        */
         
         setFormSubmitted(false);
         // Aquí puedes enviar los datos del formulario o realizar otras acciones
@@ -123,6 +141,8 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
 
         console.log("todos global ");
         console.log(allTodos);
+
+        getAll();
     }
 
 

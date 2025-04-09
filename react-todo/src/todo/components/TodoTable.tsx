@@ -1,4 +1,4 @@
-import { useContext, useReducer } from "react";
+import { useContext, useEffect, useReducer } from "react";
 import { TodoContext } from "../../context/TodoContext";
 
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowParams, GridRowsProp } from '@mui/x-data-grid';
@@ -6,6 +6,7 @@ import { TodoInterface } from "../interfaces/TodoInterface";
 import { todoReducer } from "../../context/TodoReducer";
 import { Checkbox } from "@mui/material";
 import { EditTodoButton } from "./EditTodoButton";
+import todoApi from "../../api/TodoApi";
 
 
 
@@ -37,8 +38,9 @@ export const TodoTable = () => {
     // ];
 
 
-    const { todos, dispatch, setAllTodos, allTodos } = useContext( TodoContext );
+    const { todos, dispatch, setAllTodos, allTodos, deleteTodo, getById, updateTodo } = useContext( TodoContext );
 
+    
 
     const columnKeys = () =>{
         if (todos && todos.length > 0) {
@@ -47,47 +49,56 @@ export const TodoTable = () => {
         return [];
     };
 
-
-    const handleEdit = (id: number) => {
-        
-        const action = {
-            type: 'GetById Todo',
-            payload: id
-        }
-        dispatch( action );
-        // Implementa tu lógica de edición aquí
-    };
-
     const handleDelete = (id: number) => {
         console.log('Borrar ID:', id);
+        deleteTodo(id);
         // Implementa tu lógica de borrado aquí
-        const action = {
-            type: 'Delete Todo',
-            payload: id
-        }
-        dispatch( action );
-        console.log('filter');
+        // const action = {
+        //     type: 'Delete Todo',
+        //     payload: id
+        // }
+        // dispatch( action );
+        // console.log('filter');
         
-        console.log(todos);
-        console.log("all");
+        // console.log(todos);
+        // console.log("all");
         
-        console.log(todos);
+        // console.log(todos);
         
-        const updatedAllTodos = allTodos.filter(todo => todo.id !== id);
-        setAllTodos(updatedAllTodos);
+        // const updatedAllTodos = allTodos.filter(todo => todo.id !== id);
+        // setAllTodos(updatedAllTodos);
     };
 
-    const handleToggleDone = (id: number) => {
+    const handleToggleDone = async(id: number) => {
         console.log('done:', id);
-        const action = {
-            type: 'Toogle Done',
-            payload: id
-        }
-        dispatch( action );
-        const updatedAllTodos = allTodos.map(todo =>
-            todo.id === id ? { ...todo, done: !todo.done } : todo
-          );
-          setAllTodos(updatedAllTodos);
+        
+        const data:any = await getById(id);
+        console.log(data);
+        
+        await updateTodo({
+            ...data,
+            done : !data.done
+        })
+
+
+        // console.log('actualizado',{
+        //     ...data,
+        //     done : !data.done
+        // });
+        
+
+
+        
+        
+        // const action = {
+        //     type: 'Toogle Done',
+        //     payload: id
+        // }
+        // dispatch( action );
+        // const updatedAllTodos = allTodos.map(todo =>
+        //     todo.id === id ? { ...todo, done: !todo.done } : todo
+        //   );
+        // setAllTodos(updatedAllTodos);
     };
 
     const getColumns = () => {
@@ -119,7 +130,6 @@ export const TodoTable = () => {
         return arr;
     };
 
-
     const getRows = () => {
         const arr: GridRowsProp[] = [];
         todos.map((todo) => {
@@ -128,12 +138,13 @@ export const TodoTable = () => {
             columnKeys().forEach((key) => {
               rowData[key] = todo[key];
             });
-            console.log(rowData);
+            // console.log(rowData);
             // rowData['action'] = 
             arr.push(rowData);
         });
         return arr;
-    };
+    };  
+    
 
     const columns: GridColDef[] = getColumns();
     const rows: GridRowsProp[] = getRows();

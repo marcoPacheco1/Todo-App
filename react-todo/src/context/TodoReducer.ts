@@ -11,7 +11,6 @@ export const todoReducer = ( initialStateTodo = [], action ) => {
             console.log(action.payload);
             
             const newTodoElement:TodoInterface = {
-                id: new Date().getTime(),
                 done: false,
                 // priority: action.payload.priority,
                 ...action.payload
@@ -44,6 +43,18 @@ export const todoReducer = ( initialStateTodo = [], action ) => {
                 return todo;
             });
         
+        case 'SetAllDB Todo':
+            // action.payload.forEach(element => {
+            //     const exists = initialStateTodo.some( todoDB => todoDB.id === initialStateTodo.id );
+            //     if (!exists){
+            //         initialStateTodo.push(element)
+            //     }
+            // });
+            initialStateTodo = action.payload;
+            console.log("todos:",initialStateTodo);
+            
+            return initialStateTodo;
+
         case 'Reset Todo':
             return action.payload;
 
