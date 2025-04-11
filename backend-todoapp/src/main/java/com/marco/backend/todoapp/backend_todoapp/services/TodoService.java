@@ -1,15 +1,21 @@
 package com.marco.backend.todoapp.backend_todoapp.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.marco.backend.todoapp.backend_todoapp.models.entities.PriorityEnum;
 import com.marco.backend.todoapp.backend_todoapp.models.entities.Todo;
 import com.marco.backend.todoapp.backend_todoapp.repositories.ITodoRepository;
 
@@ -21,8 +27,28 @@ public class TodoService implements ITodoService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Todo> findAll() {
-        return (List<Todo>)repository.findAll();
+    public List<Todo> getTodosFiltered(Boolean done, String name, PriorityEnum priority, Integer pageable) {
+        return (List<Todo>)repository.getFiltered(done, name, priority, pageable);
+        // if (done != null && name != null && priority != null) {
+        //     return (List<Todo>)repository.findByDoneAndNameContainingAndPriority(done, name, priority, pageable);
+        // } else if (done != null && name != null) {
+        //     return (List<Todo>)repository.findByDoneAndNameContaining(done, name, pageable);
+        // } else if (done != null && priority != null) {
+        //     return (List<Todo>)repository.findByDoneAndPriority(done, priority, pageable);
+        // } else if (name != null && priority != null) {
+        //     return (List<Todo>)repository.findByNameContainingAndPriority(name, priority, pageable);
+        // } else if (done != null) {
+        //     return (List<Todo>)repository.findByDone(done, pageable);
+        // } else if (name != null) {
+        //     return (List<Todo>)repository.findByNameContaining(name, pageable);
+        // } else if (priority != null) {
+        //     return (List<Todo>)repository.findByPriority(priority, pageable);
+        // } else {
+        //     return (List<Todo>)repository.findAll(pageable);
+        // }
+
+
+        // return (List<Todo>)repository.findAll();
         // return todosSimulados;
     }
 
@@ -51,10 +77,40 @@ public class TodoService implements ITodoService{
 
         Todo todoFound = this.findById(id);
         if (todoFound != null){
-            todoFound.setDone(todo.getDone());
+            // todoFound.setDone(todo.getDone());
             todoFound.setDueDate(todo.getDueDate()); 
             todoFound.setPriority(todo.getPriority());
             todoFound.setTaskName(todo.getTaskName());
+            return this.save(todoFound);
+        }
+        return null;
+    }
+
+
+    @Override
+    public Todo updateDone(String id) {
+        Todo todoFound = this.findById(id);
+        if (todoFound != null){
+            if (! todoFound.getDone()){
+                todoFound.setDone(true);
+                todoFound.setDoneDate(LocalDateTime.now());
+            }
+
+            return this.save(todoFound);
+        }
+        return null;
+    }
+
+
+    @Override
+    public Todo updateUndone(String id) {
+        Todo todoFound = this.findById(id);
+        if (todoFound != null){
+            if (todoFound.getDone()){
+                todoFound.setDone(false);
+                todoFound.setDoneDate(null);
+            }
+
             return this.save(todoFound);
         }
         return null;

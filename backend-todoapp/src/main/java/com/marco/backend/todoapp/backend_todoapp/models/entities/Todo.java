@@ -1,8 +1,10 @@
 package com.marco.backend.todoapp.backend_todoapp.models.entities;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.Date;
+
+import org.antlr.v4.runtime.misc.NotNull;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,14 +13,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+
 
 @Entity
 public class Todo {
-    public enum Priority {
-        High, Medium, Low
-    }
 
-    public Todo(String id, String taskName, Priority priority, Date dueDate, Boolean done) {
+    public Todo(String id, String taskName, PriorityEnum priority, LocalDateTime dueDate, Boolean done) {
         this.id = id;
         this.taskName = taskName;
         this.priority = priority;
@@ -33,12 +34,21 @@ public class Todo {
     private String id;
 
     @Column(nullable = false, length = 120)
+    @NotBlank(message = "Todo name is mandatory")
     private String taskName; 
 
+
     @Enumerated(EnumType.STRING)
-    private Priority priority;
-    private Date dueDate;
+    @NotBlank(message = "Priority should be one of there: [High, Medium, Low] ")
+    private PriorityEnum priority;
+
+    private LocalDateTime dueDate;
+    
     private Boolean done;
+
+    @Column(nullable = true)
+    private LocalDateTime doneDate;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime creationDate;
 
@@ -54,16 +64,16 @@ public class Todo {
     public void setTaskName(String taskName) {
         this.taskName = taskName;
     }
-    public Priority getPriority() {
+    public PriorityEnum getPriority() {
         return priority;
     }
-    public void setPriority(Priority priority) {
+    public void setPriority(PriorityEnum priority) {
         this.priority = priority;
     }
-    public Date getDueDate() {
+    public LocalDateTime getDueDate() {
         return dueDate;
     }
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
     public Boolean getDone() {
@@ -71,11 +81,13 @@ public class Todo {
     }
     public void setDone(Boolean done) {
         this.done = done;
-        // if (done) {
-            // this.dueDate = new Date();
-        // } else
-        //     this.dueDate = null;
-        // }
+    }
+
+    public LocalDateTime getDoneDate() {
+        return doneDate;
+    }
+    public void setDoneDate(LocalDateTime doneDate) {
+        this.doneDate = doneDate;
     }
 
 }

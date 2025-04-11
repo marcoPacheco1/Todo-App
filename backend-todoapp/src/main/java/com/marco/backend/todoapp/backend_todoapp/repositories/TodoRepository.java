@@ -1,36 +1,50 @@
 package com.marco.backend.todoapp.backend_todoapp.repositories;
 
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.stereotype.Repository;
 
+import com.marco.backend.todoapp.backend_todoapp.models.entities.PriorityEnum;
 import com.marco.backend.todoapp.backend_todoapp.models.entities.Todo;
 
 @Repository
-public class TodoRepository implements ITodoRepository {
-    
+public class TodoRepository implements ITodoRepository{
+    private static final int pageElements = 2;
+
     private static final List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
-        new Todo("1", "Comprar pan", Todo.Priority.Low, new Date(), false),
-        new Todo("2", "Hacer la tarea", Todo.Priority.High, new Date(), false),
-        new Todo("3", "Llamar al doctor", Todo.Priority.High, new Date(), false)
-        ));
+        new Todo("1", "Comprar pan", PriorityEnum.Low, LocalDateTime.of(2025, 5, 18,0,0), true),
+        new Todo("2", "Hacer la tarea", PriorityEnum.High, LocalDateTime.of(2025, 6, 1,0,0), false),
+        new Todo("3", "Llamar al doctor", PriorityEnum.High, LocalDateTime.of(2025, 3, 1,0,0), false)
+    ));
         
     @Override
-    public Iterable<Todo> findAll() {
+    public List<Todo> findAll() {
         return todosSimulados;
     }
 
     @Override
     public Optional<Todo> findById(String id) {
-        
-        return todosSimulados.stream()
+        Optional<Todo> optionalTodo = todosSimulados.stream()
             .filter(todo -> todo.getId().equals(id))
             .findFirst();
+        return optionalTodo; 
     }
 
     @Override
@@ -38,47 +52,191 @@ public class TodoRepository implements ITodoRepository {
         if (entity.getId() == null) {
             String nextId = UUID.randomUUID().toString();
             entity.setId(nextId);
-            todosSimulados.add(entity);
+            todosSimulados.add(0,entity);
         } else {
             todosSimulados.removeIf(todo -> todo.getId().equals(entity.getId()));
-            todosSimulados.add(entity);
+            todosSimulados.add(0,entity);
         }
         return entity;
     }
 
     @Override
     public void deleteById(String id) {
-
-        System.out.println("gola");
         todosSimulados.removeIf(todo -> todo.getId().equals(id));
     }
 
     @Override
-    public void delete(Todo entity) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public List<Todo> getFiltered(Boolean done, String name, PriorityEnum priority, Integer page) {
+        List<Todo> fileredTodo = todosSimulados.stream()
+            .filter( todo -> done == null || todo.getDone().equals(done))
+            .filter( todo -> name == null || todo.getTaskName().toLowerCase().contains(name.toLowerCase()))
+            .filter( todo -> priority == null || todo.getPriority() ==  priority)
+            .sorted( Comparator.comparing(Todo::getPriority)
+                .thenComparing(Todo::getDueDate))
+            .collect(Collectors.toList());
+        
+        if (page == null)
+            page = 1;
+
+        int start = (page -1 ) * pageElements;
+        int end = Math.min((start + pageElements), fileredTodo.size());
+
+        if (start > fileredTodo.size()) {
+            return Collections.emptyList(); // Return an empty list if page number is out of range
+        }
+        return fileredTodo.subList(start, end);
     }
+
+
+
+
+    // @Override
+    // public Page<Todo> findByDone(Boolean done, Pageable pageable) {
+    //     List<Todo> filtered = todosSimulados.stream()
+    //             .filter(todo -> todo.getDone() == done)
+    //             .collect(Collectors.toList());
+    //     return getPage(filtered, pageable);
+    // }
+
+    // @Override
+    // public Page<Todo> findByNameContaining(String name, Pageable pageable) {
+    //     List<Todo> filtered = todosSimulados.stream()
+    //             .filter(todo -> todo.getName().contains(name))
+    //             .collect(Collectors.toList());
+    //     return getPage(filtered, pageable);
+    // }
+
+    // @Override
+    // public Page<Todo> findByPriority(Integer priority, Pageable pageable) {
+    //     List<Todo> filtered = todosSimulados.stream()
+    //             .filter(todo -> todo.getPriority().ordinal() == priority)
+    //             .collect(Collectors.toList());
+    //     return getPage(filtered, pageable);
+    // }
+
+    // @Override
+    // public Page<Todo> findByDoneAndNameContaining(Boolean done, String name, Pageable pageable) {
+    //     List<Todo> filtered = todosSimulados.stream()
+    //             .filter(todo -> todo.getDone() == done && todo.getName().contains(name))
+    //             .collect(Collectors.toList());
+    //     return getPage(filtered, pageable);
+    // }
+
+    // @Override
+    // public Page<Todo> findByDoneAndPriority(Boolean done, Integer priority, Pageable pageable) {
+    //     List<Todo> filtered = todosSimulados.stream()
+    //             .filter(todo -> todo.getName().contains(name) && todo.getPriority().ordinal() == priority)
+    //             .collect(Collectors.toList());
+    //     return getPage(filtered, pageable);
+    // }
+
+    // @Override
+    // public Page<Todo> findByNameContainingAndPriority(String name, Integer priority, Pageable pageable) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'findByNameContainingAndPriority'");
+    // }
+
+
+
+
 
 
     @Override
-    public <S extends Todo> Iterable<S> saveAll(Iterable<S> entities) {
+    public Todo getReferenceById(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // @Override
+    // public Optional<Todo> findById(String id) {
+        
+    //     return todosSimulados.stream()
+    //         .filter(todo -> todo.getId().equals(id))
+    //         .findFirst();
+    // }
+
+
+    @Override
+    public void flush() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'flush'");
+    }
+
+    @Override
+    public <S extends Todo> S saveAndFlush(S entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'saveAndFlush'");
+    }
+
+    @Override
+    public <S extends Todo> List<S> saveAllAndFlush(Iterable<S> entities) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'saveAllAndFlush'");
+    }
+
+    @Override
+    public void deleteAllInBatch(Iterable<Todo> entities) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllInBatch'");
+    }
+
+    @Override
+    public void deleteAllByIdInBatch(Iterable<String> ids) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllByIdInBatch'");
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllInBatch'");
+    }
+
+    @Override
+    public Todo getOne(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getOne'");
+    }
+
+    @Override
+    public Todo getById(String id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+    }
+
+    
+    @Override
+    public <S extends Todo> List<S> findAll(Example<S> example, Sort sort) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
+
+    @Override
+    public <S extends Todo> List<S> saveAll(Iterable<S> entities) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'saveAll'");
     }
-    
+
+    @Override
+    public List<Todo> findAllById(Iterable<String> ids) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAllById'");
+    }
 
     @Override
     public boolean existsById(String id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'existsById'");
-    }
-
-  
-
-    @Override
-    public Iterable<Todo> findAllById(Iterable<String> ids) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAllById'");
     }
 
     @Override
@@ -87,9 +245,12 @@ public class TodoRepository implements ITodoRepository {
         throw new UnsupportedOperationException("Unimplemented method 'count'");
     }
 
-    
+    @Override
+    public void delete(Todo entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
 
-    
     @Override
     public void deleteAllById(Iterable<? extends String> ids) {
         // TODO Auto-generated method stub
@@ -107,5 +268,55 @@ public class TodoRepository implements ITodoRepository {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
     }
+
+    @Override
+    public <S extends Todo> Optional<S> findOne(Example<S> example) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findOne'");
+    }
+
+    @Override
+    public <S extends Todo> long count(Example<S> example) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'count'");
+    }
+
+    @Override
+    public <S extends Todo> boolean exists(Example<S> example) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'exists'");
+    }
+
+    @Override
+    public <S extends Todo, R> R findBy(Example<S> example, Function<FetchableFluentQuery<S>, R> queryFunction) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findBy'");
+    }
+
+    @Override
+    public <S extends Todo> List<S> findAll(Example<S> example) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
+
+    @Override
+    public List<Todo> findAll(Sort sort) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
+
+    @Override
+    public Page<Todo> findAll(Pageable pageable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
+
+    @Override
+    public <S extends Todo> Page<S> findAll(Example<S> example, Pageable pageable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+    }
+
+    
 
 }
