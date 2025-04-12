@@ -3,7 +3,7 @@ import { TodoContext } from "../../context/TodoContext";
 
 export const SearchForm = () => {
 
-    const {allTodos, todos, dispatch } = useContext( TodoContext );
+    const {filteredList, setFilteredList, todos, dispatch, getAll } = useContext( TodoContext );
     
     const [ formState, setFormState ] = useState( {} );
 
@@ -13,16 +13,51 @@ export const SearchForm = () => {
         dispatch({ type: 'Reset Todo', payload: allTodos });
     };
 
-    const onSearchSubmit = (event) =>{
+    const onSearchSubmit = async(event) =>{
+        // await getAll();
         event.preventDefault();
-        onResetFilter();
+        // onResetFilter();
         const {target} = event;
 
-        const action = {
-            type: 'Filter Todo',
-            payload: formState
+        console.log('al presionar filtar:', formState);
+        
+
+        // const action = {
+        //     type: 'Filter Todo',
+        //     payload: formState
+        // }
+        // dispatch( action );
+
+        let filteredTasks = todos.map(todo => ({ ...todo }));
+                          
+        if (formState.hasOwnProperty('taskName')){
+            filteredTasks= filteredTasks.filter( (todo:TodoFilter) => {
+                console.log(todo['taskName'], formState['taskName']);
+                console.log(todo['taskName']?.toLocaleLowerCase().includes( formState['taskName'] ));
+                
+                return todo['taskName']?.toLocaleLowerCase().includes( formState['taskName'] ) 
+            });
         }
-        dispatch( action );
+
+        if (formState.hasOwnProperty('state')){
+            filteredTasks= filteredTasks.filter( todo => {
+                if (formState['state'] === 'Undone')
+                    return todo['done'] === false 
+                else if (formState['state'] === 'Done')
+                    return todo['done'] === true 
+                return todo    
+            });
+        }
+        
+        if (formState.hasOwnProperty('priority')){
+            filteredTasks= filteredTasks.filter( todo => {
+                if (formState['priority'] !== 'All')
+                    return todo['priority'] === formState['priority'] 
+                return todo
+            });
+        }
+        setFilteredList(filteredTasks);
+        
     }
 
 

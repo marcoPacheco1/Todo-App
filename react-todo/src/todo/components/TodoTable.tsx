@@ -38,7 +38,7 @@ export const TodoTable = () => {
     // ];
 
 
-    const { todos, dispatch, setAllTodos, allTodos, deleteTodo, getById, updateTodo } = useContext( TodoContext );
+    const { todos, dispatch, setFilteredList, filteredList, deleteTodo, getById, updateTodo } = useContext( TodoContext );
 
     
 
@@ -52,6 +52,9 @@ export const TodoTable = () => {
     const handleDelete = (id: number) => {
         console.log('Borrar ID:', id);
         deleteTodo(id);
+        
+        setFilteredList(filteredList.filter(todo => todo.id !== id));
+
         // Implementa tu lógica de borrado aquí
         // const action = {
         //     type: 'Delete Todo',
@@ -66,8 +69,17 @@ export const TodoTable = () => {
         // console.log(todos);
         
         // const updatedAllTodos = allTodos.filter(todo => todo.id !== id);
-        // setAllTodos(updatedAllTodos);
     };
+
+
+    useEffect(() => {
+        setFilteredList((filteredList) =>
+            filteredList.map((filteredTodo) => {
+            const updatedTodo = todos.find((todo) => todo.id === filteredTodo.id);
+            return updatedTodo ? updatedTodo : filteredTodo;
+          })
+        );
+    }, [todos]);
 
     const handleToggleDone = async(id: number) => {
         console.log('done:', id);
@@ -80,6 +92,19 @@ export const TodoTable = () => {
             done : !data.done
         })
 
+    
+        console.log('ac filtrado:', filteredList);
+        
+        // setFilteredList(
+        //     todo => 
+        //         todo.id === data.id
+        //             ? {
+        //                 ...data,
+        //                 done : !data.done
+        //             }
+        //             : todo
+        // );
+        
 
         // console.log('actualizado',{
         //     ...data,
@@ -132,7 +157,7 @@ export const TodoTable = () => {
 
     const getRows = () => {
         const arr: GridRowsProp[] = [];
-        todos.map((todo) => {
+        filteredList.map((todo) => {
             const rowData: { id: number; [key: string]: any } = { id: todo.id };
 
             columnKeys().forEach((key) => {

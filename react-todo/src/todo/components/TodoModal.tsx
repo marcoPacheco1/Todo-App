@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import { TodoContext } from "../../context/TodoContext";
 import todoApi from "../../api/TodoApi";
+import { TodoInterface } from "../interfaces/TodoInterface";
 
 
 const style = {
@@ -25,7 +26,7 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
     // const [open, setOpen] = useState(false);
     // const handleOpen = () => setOpen(true);
     // const handleClose = () => setOpen(false);
-    const {allTodos, todos, dispatch, setAllTodosm, getAll, postTodo, updateTodo } = useContext( TodoContext );
+    const {filteredList, setFilteredList,  todos, dispatch, getAll, postTodo, updateTodo } = useContext( TodoContext );
     
     const [ formSubmitted, setFormSubmitted ] = useState(false);
 
@@ -89,18 +90,27 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         // Valores del formulario
         console.log(formValues);
 
+        const newTodoElement:TodoInterface = {
+            done: false,
+            // priority: action.payload.priority,
+            ...formValues
+        }
+
         // BACKEND 
 
         if ('id' in formValues) {
             //update
             // const { data } = await todoApi.get('', formValues );
-            updateTodo(formValues)
+            updateTodo(newTodoElement)
         }
         else{
             //new
             // const { data } = await todoApi.get('', formValues );
 
-            postTodo(formValues)
+            postTodo(newTodoElement)
+            // TODO: actualizar ilteredList
+            
+
         }
 
         // await startSavingEvent( formValues );
@@ -139,10 +149,9 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         console.log("todos local ");
         console.log(todos);
 
-        console.log("todos global ");
-        console.log(allTodos);
+        // await getAll();
 
-        getAll();
+        
     }
 
 

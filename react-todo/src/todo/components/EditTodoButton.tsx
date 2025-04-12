@@ -5,11 +5,11 @@ import { TodoContext } from "../../context/TodoContext";
 export const EditTodoButton = ({id}:Number) => {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { allTodos, dispatch, setAllTodos, todos } = useContext( TodoContext );
+  const { dispatch, todos } = useContext( TodoContext );
   const [todoToEdit, setTodoToEdit] = useState(null);
 
   const handleOpen = () => {
-    const todo = allTodos.find(todo => todo.id === id);
+    const todo = todos.find(todo => todo.id === id);
     console.log('ebtqwert');
     
     console.log(todo);

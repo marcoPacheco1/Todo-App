@@ -16,30 +16,30 @@ import todoApi from "../api/TodoApi";
     
 // }
 
-const listTodo:TodoInterface[] = [
-    {
-        done: false,      
-        id: 123,
-        taskName: 'task 1',
-        priority: 'Low',
-        dueDate: new Date('2025/04/9'),
-    },
-    {
-        done: false,
-        id: 234,
-        taskName: 'task 21',
-        priority: 'High',
-        dueDate: new Date('2026/01/01'),
-    },
-    {
-        done: false,
-        id: 3,
-        taskName: 'task 31',
-        priority: 'Medium',
-        dueDate: new Date('2025/04/15'),
-    }
+// const listTodo:TodoInterface[] = [
+//     {
+//         done: false,      
+//         id: 123,
+//         taskName: 'task 1',
+//         priority: 'Low',
+//         dueDate: new Date('2025/04/9'),
+//     },
+//     {
+//         done: false,
+//         id: 234,
+//         taskName: 'task 21',
+//         priority: 'High',
+//         dueDate: new Date('2026/01/01'),
+//     },
+//     {
+//         done: false,
+//         id: 3,
+//         taskName: 'task 31',
+//         priority: 'Medium',
+//         dueDate: new Date('2025/04/15'),
+//     }
     
-];
+// ];
 
 const init = () => {
     return JSON.parse(localStorage.getItem('todos'))  || [];
@@ -52,7 +52,7 @@ const init = () => {
 
 export const TodoProvider = ({ children }) => {
 
-    const [allTodos, setAllTodos] = useState([]);
+    const [filteredList, setFilteredList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [ todos, dispatch ] = useReducer( todoReducer, [] );
 
@@ -75,7 +75,7 @@ export const TodoProvider = ({ children }) => {
             dispatch( action );
     
             setIsLoading(false);
-            setAllTodos(dataFormatted);
+            setFilteredList(dataFormatted);
             
         } catch (error) {
             console.log("Error al cargar");
@@ -108,7 +108,7 @@ export const TodoProvider = ({ children }) => {
             // dispatch( action );
     
             // setIsLoading(false);
-            // setAllTodos(dataFormatted);
+            // setfilteredList(dataFormatted);
             
         } catch (error) {
             console.log("Error al cargar");
@@ -118,15 +118,17 @@ export const TodoProvider = ({ children }) => {
 
     const postTodo = async(formValues) =>{
         try {
-            console.log('llamando a post back', formValues);
             const { data } = await todoApi.post('', formValues );
+            console.log('llamando a post back res:', data);
         
             // Optimistic UI es necesario? Actualización del Estado Local 
-            // const action = {
-            //     type: 'Add Todo',
-            //     payload: {...formValues, id: data.id }
-            // }
-            // dispatch( action ); 
+            if (data.id){
+                const action = {
+                    type: 'Add Todo',
+                    payload: {...formValues, id: data.id }
+                }
+                dispatch( action ); 
+            }
             await getAll();
             
         } catch (error) {
@@ -140,13 +142,14 @@ export const TodoProvider = ({ children }) => {
             console.log('llamando a update back', formValues);
             const { data } = await todoApi.put(`/${formValues.id}`, formValues );
             console.log(data);
-            
-            // const action = {
-            //     type: 'Update Todo',
-            //     payload: formValues
-            // }
-            // dispatch( action );
-            await getAll();
+
+            if (data.id){
+                const action = {
+                    type: 'Update Todo',
+                    payload: data
+                }
+                dispatch( action );
+            }
     
         } catch (error) {
             console.log("Error al ppostear");
@@ -154,25 +157,23 @@ export const TodoProvider = ({ children }) => {
         }
     }
 
+    
+      
+
     const deleteTodo = async(id) =>{
         try {
             console.log('llamando a delete back', id);
             const { data } = await todoApi.delete(`/${id}`);
             console.log(data);
             
-            // const action = {
-            //     type: 'Update Todo',
-            //     payload: id
-            // }
-            // dispatch( action );
+            const action = {
+                type: 'Delete Todo',
+                payload: id
+            }
+            dispatch( action );
             
-            // const action = {
-            //     type: 'Add Todo',
-            //     payload: formValues
-            // }
-            // dispatch( action );  
 
-            await getAll();
+            // await getAll();
 
         } catch (error) {
             console.log("Error al ppostear");
@@ -187,7 +188,7 @@ export const TodoProvider = ({ children }) => {
 
     return (
         
-        <TodoContext.Provider value={{ allTodos, setAllTodos,todos, dispatch, isLoading, 
+        <TodoContext.Provider value={{ filteredList, setFilteredList,todos, dispatch, isLoading, 
             getAll, postTodo, updateTodo, deleteTodo, getById
         }}>
             { children }
