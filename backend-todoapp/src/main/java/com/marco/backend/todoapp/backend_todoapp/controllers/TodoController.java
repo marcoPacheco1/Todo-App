@@ -3,6 +3,7 @@ package com.marco.backend.todoapp.backend_todoapp.controllers;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
@@ -44,7 +45,7 @@ public class TodoController {
 
     // http://localhost:8080/todos?done=false&page=1&name=pan&priority=Low
     @GetMapping("/todos")
-    public List<Todo> getTodos(
+    public Map<String, Object> getTodos(
         @RequestParam(required = false, defaultValue = "1") Integer page,
         @RequestParam(required = false) Boolean done,
         @RequestParam(required = false) String name,

@@ -2,9 +2,9 @@ package com.marco.backend.todoapp.backend_todoapp.repositories;
 
 
 import java.time.LocalDate;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -66,7 +67,7 @@ public class TodoRepository implements ITodoRepository{
     }
 
     @Override
-    public List<Todo> getFiltered(Boolean done, String name, PriorityEnum priority, Integer page) {
+    public Map<String, Object> getFiltered(Boolean done, String name, PriorityEnum priority, Integer page) {
         List<Todo> fileredTodo = todosSimulados.stream()
             .filter( todo -> done == null || todo.getDone().equals(done))
             .filter( todo -> name == null || todo.getTaskName().toLowerCase().contains(name.toLowerCase()))
@@ -80,11 +81,21 @@ public class TodoRepository implements ITodoRepository{
 
         int start = (page -1 ) * pageElements;
         int end = Math.min((start + pageElements), fileredTodo.size());
+        int totalPages = (int) Math.ceil((double) fileredTodo.size() / pageElements);
+
+        List<Todo> fileredTodoList;
 
         if (start > fileredTodo.size()) {
-            return Collections.emptyList(); // Return an empty list if page number is out of range
+            fileredTodoList = Collections.emptyList(); // Return an empty list if page number is out of range
         }
-        return fileredTodo.subList(start, end);
+        fileredTodoList = fileredTodo.subList(start, end);
+        Map<String, Object> response = new HashMap<>();
+        response.put("fileredTodo", fileredTodoList) ;
+        response.put("currentPage", page);
+        response.put("totalPages", totalPages);
+        response.put("totalItems", fileredTodo.size());
+
+        return response;
     }
 
 

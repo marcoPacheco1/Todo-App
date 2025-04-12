@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class TodoService implements ITodoService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<Todo> getTodosFiltered(Boolean done, String name, PriorityEnum priority, Integer pageable) {
-        return (List<Todo>)repository.getFiltered(done, name, priority, pageable);
+    public Map<String, Object> getTodosFiltered(Boolean done, String name, PriorityEnum priority, Integer pageable) {
+        return repository.getFiltered(done, name, priority, pageable);
         // if (done != null && name != null && priority != null) {
         //     return (List<Todo>)repository.findByDoneAndNameContainingAndPriority(done, name, priority, pageable);
         // } else if (done != null && name != null) {
