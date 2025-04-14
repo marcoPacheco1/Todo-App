@@ -27,12 +27,15 @@ import com.marco.backend.todoapp.backend_todoapp.models.entities.Todo;
 
 @Repository
 public class TodoRepository implements ITodoRepository{
-    private static final int pageElements = 2;
+    private static final int pageElements = 3;
 
-    private static final List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
-        new Todo("1", "Comprar pan", PriorityEnum.Low, LocalDateTime.of(2025, 5, 18,0,0), true),
-        new Todo("2", "Hacer la tarea", PriorityEnum.High, LocalDateTime.of(2025, 6, 1,0,0), false),
-        new Todo("3", "Llamar al doctor", PriorityEnum.High, LocalDateTime.of(2025, 3, 1,0,0), false)
+    public static List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
+        new Todo("1", "Buy bread", PriorityEnum.High, 
+            LocalDateTime.of(2025, 5, 18,0,0), true),
+        new Todo("2", "Pay bills", PriorityEnum.High, 
+            LocalDateTime.of(2025, 6, 1,0,0), false),
+        new Todo("3", "Study react", PriorityEnum.Low, 
+            LocalDateTime.of(2025, 3, 1,0,0), false)
     ));
         
     @Override
@@ -67,21 +70,52 @@ public class TodoRepository implements ITodoRepository{
     }
 
     @Override
-    public Map<String, Object> getFiltered(Boolean done, String name, PriorityEnum priority, Integer page) {
+    public Map<String, Object> getFiltered(Boolean done, String name, PriorityEnum priority, Integer page, List<String> sortBy, Sort.Direction sortDirection) {
+        Comparator<Todo> comparator = null;
+        
+        if (sortBy != null && !sortBy.isEmpty()) {
+            for (int i = 0; i < sortBy.size(); i++) {
+                String sort = sortBy.get(i);
+                Comparator<Todo> currentComparator = null;
+    
+                if (sort.equalsIgnoreCase("priority")) {
+                    currentComparator = Comparator.comparing(Todo::getPriority);
+                } else if (sort.equalsIgnoreCase("dueDate")) {
+                    currentComparator = Comparator.comparing(Todo::getDueDate);
+                }
+    
+                if (currentComparator != null) {
+                    if (comparator == null) {
+                        comparator = currentComparator;
+                    } else {
+                        comparator = comparator.thenComparing(currentComparator);
+                    }
+                }
+            }
+    
+            if (comparator != null && sortDirection == Sort.Direction.DESC) {
+                comparator = comparator.reversed();
+            }
+        }
+        
         List<Todo> fileredTodo = todosSimulados.stream()
             .filter( todo -> done == null || todo.getDone().equals(done))
             .filter( todo -> name == null || todo.getTaskName().toLowerCase().contains(name.toLowerCase()))
             .filter( todo -> priority == null || todo.getPriority() ==  priority)
-            .sorted( Comparator.comparing(Todo::getPriority)
-                .thenComparing(Todo::getDueDate))
             .collect(Collectors.toList());
         
-        if (page == null)
-            page = 1;
+        if (comparator != null) {
+            fileredTodo.sort(comparator);
+        }
 
-        int start = (page -1 ) * pageElements;
+        int totalPages = (int) Math.ceil((double) fileredTodo.size() / pageElements) ;
+        if (page == null)
+            page = 0;
+        else if (page >= totalPages)
+            page = totalPages - 1;
+
+        int start = (page ) * pageElements;
         int end = Math.min((start + pageElements), fileredTodo.size());
-        int totalPages = (int) Math.ceil((double) fileredTodo.size() / pageElements);
 
         List<Todo> fileredTodoList;
 
@@ -89,6 +123,7 @@ public class TodoRepository implements ITodoRepository{
             fileredTodoList = Collections.emptyList(); // Return an empty list if page number is out of range
         }
         fileredTodoList = fileredTodo.subList(start, end);
+        
         Map<String, Object> response = new HashMap<>();
         response.put("fileredTodo", fileredTodoList) ;
         response.put("currentPage", page);
@@ -157,16 +192,6 @@ public class TodoRepository implements ITodoRepository{
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findById'");
     }
-
-
-
-
-
-
-
-
-
-
 
     // @Override
     // public Optional<Todo> findById(String id) {
@@ -327,7 +352,4 @@ public class TodoRepository implements ITodoRepository{
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findAll'");
     }
-
-    
-
 }

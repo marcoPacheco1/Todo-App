@@ -1,11 +1,15 @@
 package com.marco.backend.todoapp.backend_todoapp.services;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
@@ -26,31 +30,70 @@ public class TodoService implements ITodoService{
     @Autowired
     private ITodoRepository repository;
 
+    public String getFormatDate(Duration duration){
+    
+        long days = duration.toDays();
+        long hours = duration.toHours() % 24;
+        long minutes = duration.toMinutes() % 60; 
+        long seconds = duration.getSeconds() % 60;
+        
+        String duracionFormateada = String.format(
+            "%d days, %d hours, %d minutes, %d seconds",
+            days, hours, minutes, seconds
+        );
+
+        return duracionFormateada;
+    } 
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMetrics() {
+        List<Todo> todos = repository.findAll();
+
+        List<Todo> doneTodo = todos.stream()
+        .filter( todo -> todo.getDone().equals(true))
+        .collect(Collectors.toList());
+
+        Duration duration = Duration.ZERO;
+        Duration avgDoneDurationGeneral = Duration.ZERO;
+        Duration avgDoneDuration = Duration.ZERO;
+        for (Todo done : doneTodo) {
+            duration =duration.plus( Duration.between(done.getCreationDate(), done.getDoneDate()));    
+        }
+        if (doneTodo.size() > 0)
+            avgDoneDurationGeneral= duration.dividedBy(doneTodo.size());
+
+        Map<PriorityEnum, String> averageTimeByPriority = new HashMap<>();
+
+        for (PriorityEnum priority : PriorityEnum.values()) {
+            List<Todo> doneTodosByPriority = doneTodo.stream()
+                    .filter(todo -> todo.getPriority() == priority)
+                    .collect(Collectors.toList());
+
+            Duration totalDuration = Duration.ZERO;
+            for (Todo todo : doneTodosByPriority) {
+                if (todo.getDoneDate() != null) {
+                    totalDuration = totalDuration.plus(Duration.between(todo.getCreationDate(), todo.getDoneDate()));
+                }
+            }
+
+            Duration averageDuration = Duration.ZERO;
+            if (! doneTodosByPriority.isEmpty())
+                averageDuration = totalDuration.dividedBy(doneTodosByPriority.size());
+            averageTimeByPriority.put(priority, getFormatDate(averageDuration));
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("averageEstimatedTimeToComplete", getFormatDate(avgDoneDurationGeneral)) ; 
+        response.put("averageTimeToFinishByPriority", averageTimeByPriority);
+        return response;
+    }
+
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getTodosFiltered(Boolean done, String name, PriorityEnum priority, Integer pageable) {
-        return repository.getFiltered(done, name, priority, pageable);
-        // if (done != null && name != null && priority != null) {
-        //     return (List<Todo>)repository.findByDoneAndNameContainingAndPriority(done, name, priority, pageable);
-        // } else if (done != null && name != null) {
-        //     return (List<Todo>)repository.findByDoneAndNameContaining(done, name, pageable);
-        // } else if (done != null && priority != null) {
-        //     return (List<Todo>)repository.findByDoneAndPriority(done, priority, pageable);
-        // } else if (name != null && priority != null) {
-        //     return (List<Todo>)repository.findByNameContainingAndPriority(name, priority, pageable);
-        // } else if (done != null) {
-        //     return (List<Todo>)repository.findByDone(done, pageable);
-        // } else if (name != null) {
-        //     return (List<Todo>)repository.findByNameContaining(name, pageable);
-        // } else if (priority != null) {
-        //     return (List<Todo>)repository.findByPriority(priority, pageable);
-        // } else {
-        //     return (List<Todo>)repository.findAll(pageable);
-        // }
+    public Map<String, Object> getTodosFiltered(Boolean done, String name, PriorityEnum priority, Integer pageable, 
+        List<String> sortBy, Sort.Direction sortDirection ) {
 
-
-        // return (List<Todo>)repository.findAll();
-        // return todosSimulados;
+        return repository.getFiltered(done, name, priority, pageable, sortBy, sortDirection);
     }
 
     @Override
@@ -62,8 +105,6 @@ public class TodoService implements ITodoService{
     @Override
     @Transactional
     public Todo save(Todo todo) {
-        // System.out.println("save-service");
-        // System.out.println(todo.getPriority());
         return repository.save(todo);
     }
 
@@ -78,7 +119,6 @@ public class TodoService implements ITodoService{
 
         Todo todoFound = this.findById(id);
         if (todoFound != null){
-            // todoFound.setDone(todo.getDone());
             todoFound.setDueDate(todo.getDueDate()); 
             todoFound.setPriority(todo.getPriority());
             todoFound.setTaskName(todo.getTaskName());
@@ -116,11 +156,4 @@ public class TodoService implements ITodoService{
         }
         return null;
     }
-
-
-    // private static final List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
-    //     new Todo(1L, "Comprar pan", "Low", new Date(), false),
-    //     new Todo(2L, "Hacer la tarea", "High", new Date(), false),
-    //     new Todo(3L, "Llamar al doctor", "Medium", new Date(), false)
-    // ));
 }

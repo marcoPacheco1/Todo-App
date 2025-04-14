@@ -4,7 +4,7 @@ package com.marco.backend.todoapp.backend_todoapp.models.entities;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,6 +26,7 @@ public class Todo {
         this.dueDate = dueDate;
         this.done = done;
         this.creationDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
+        this.doneDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City")).plusHours(12);
     }
 
     @Id
@@ -39,7 +40,7 @@ public class Todo {
 
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Priority should be one of there: [High, Medium, Low] ")
+    @NotNull(message = "Priority should be one of there: [High, Medium, Low] ")
     private PriorityEnum priority;
 
     private LocalDateTime dueDate;
@@ -52,6 +53,13 @@ public class Todo {
     @Column(nullable = false, updatable = false)
     private LocalDateTime creationDate;
 
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+    
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
     public String getId() {
         return id;
     }
