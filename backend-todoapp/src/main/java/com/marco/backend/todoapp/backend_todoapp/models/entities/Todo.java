@@ -2,7 +2,6 @@ package com.marco.backend.todoapp.backend_todoapp.models.entities;
 
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -19,6 +18,21 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 public class Todo {
 
+    public Todo() {
+        this.creationDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
+        this.doneDate = null;
+        this.done = false;
+    }
+
+    public Todo(String taskName, PriorityEnum priority, LocalDateTime dueDate, Boolean done) {
+        this.taskName = taskName;
+        this.priority = priority;
+        this.dueDate = dueDate;
+        this.done = false;
+        this.creationDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
+        this.doneDate = null;
+    }
+
     public Todo(String id, String taskName, PriorityEnum priority, LocalDateTime dueDate, Boolean done) {
         this.id = id;
         this.taskName = taskName;
@@ -28,6 +42,8 @@ public class Todo {
         this.creationDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City"));
         this.doneDate = LocalDateTime.now(java.time.ZoneId.of("America/Mexico_City")).plusHours(12);
     }
+
+  
 
     @Id
     @Column(unique = true)
@@ -43,6 +59,7 @@ public class Todo {
     @NotNull(message = "Priority should be one of there: [High, Medium, Low] ")
     private PriorityEnum priority;
 
+    @Column(nullable = true)
     private LocalDateTime dueDate;
     
     private Boolean done;

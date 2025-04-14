@@ -81,7 +81,7 @@ public class TodoRepository implements ITodoRepository{
                 if (sort.equalsIgnoreCase("priority")) {
                     currentComparator = Comparator.comparing(Todo::getPriority);
                 } else if (sort.equalsIgnoreCase("dueDate")) {
-                    currentComparator = Comparator.comparing(Todo::getDueDate);
+                    currentComparator = Comparator.comparing(Todo::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()));
                 }
     
                 if (currentComparator != null) {
