@@ -6,16 +6,13 @@ import { Metrics } from "./Metrics"
 import { Navbar } from "./Navbar"
 import { SearchForm } from "./SearchForm"
 import { TodoTable } from "./TodoTable"
-import { parseISO } from "date-fns"
 import { useContext, useEffect, useMemo, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
 
 
 export const TodoPage = () => {
-  const {allTodos, todos, dispatch, setAllTodos, isLoading } = useContext( TodoContext );
-  console.log('PAGE:',todos);
+  const {isLoading } = useContext( TodoContext );
   
-
   return (
     <>
       <Navbar />
