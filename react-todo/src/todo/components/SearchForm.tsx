@@ -1,7 +1,12 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
+import { useLocation, useNavigate } from "react-router";
 
 export const SearchForm = () => {
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    
 
     const {filteredList, setFilteredList, todos, dispatch, getAll } = useContext( TodoContext );
     
@@ -13,6 +18,47 @@ export const SearchForm = () => {
         dispatch({ type: 'Reset Todo', payload: allTodos });
     };
 
+
+    const buildURL = async() => {
+        // http://localhost:8080/todos?done=false&page=1&name=pan&priority=Low
+
+        const params = {};
+
+        if (formState.hasOwnProperty('taskName')){
+            params.name = formState['taskName'];
+        }
+
+        if (formState.hasOwnProperty('state')){
+            if (formState['state'] === 'Undone')
+                params.done = false 
+            else if (formState['state'] === 'Done')
+                params.done = true 
+        }
+        
+        if (formState.hasOwnProperty('priority')){
+            if (formState['priority'] !== 'All')
+                params.priority = formState['priority'];
+        }
+
+        const queryParams = new URLSearchParams();
+
+        for (const key in params) {
+            if (params.hasOwnProperty(key) && params[key] !== '')
+                queryParams.append(key, params[key]);
+        }
+
+        const queryString = queryParams.toString();
+        const url =`?${queryString.toString()}`;
+
+        navigate(url, { replace: true });
+        console.log('parametros URL:', params);
+        await getAll(params);
+
+    }
+    // useEffect(() => {
+    //     buildURL();
+    // },[location.search]); 
+
     const onSearchSubmit = async(event) =>{
         // await getAll();
         event.preventDefault();
@@ -20,52 +66,31 @@ export const SearchForm = () => {
         const {target} = event;
 
         console.log('al presionar filtar:', formState);
-        
 
-        // const action = {
-        //     type: 'Filter Todo',
-        //     payload: formState
-        // }
-        // dispatch( action );
-
-        let filteredTasks = todos.map(todo => ({ ...todo }));
-                          
-        if (formState.hasOwnProperty('taskName')){
-            filteredTasks= filteredTasks.filter( (todo:TodoFilter) => {
-                console.log(todo['taskName'], formState['taskName']);
-                console.log(todo['taskName']?.toLocaleLowerCase().includes( formState['taskName'] ));
-                
-                return todo['taskName']?.toLocaleLowerCase().includes( formState['taskName'] ) 
-            });
-        }
-
-        if (formState.hasOwnProperty('state')){
-            filteredTasks= filteredTasks.filter( todo => {
-                if (formState['state'] === 'Undone')
-                    return todo['done'] === false 
-                else if (formState['state'] === 'Done')
-                    return todo['done'] === true 
-                return todo    
-            });
-        }
         
-        if (formState.hasOwnProperty('priority')){
-            filteredTasks= filteredTasks.filter( todo => {
-                if (formState['priority'] !== 'All')
-                    return todo['priority'] === formState['priority'] 
-                return todo
-            });
-        }
-        setFilteredList(filteredTasks);
-        
+        buildURL();
     }
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        console.log(location.search);
+        console.log(params.get('done') === 'true');
+        
+        const newFormState = {
+            taskName: params.get('name') || '',
+            priority: params.get('priority') || 'All',
+        };
+        if (params.get('done') === 'false')
+            newFormState.state = 'Undone' ;
+        else if (params.get('done') === 'true')
+            newFormState.state = 'Done' ;
+        setFormState(newFormState);
+    }, [location.search]);
 
 
     const onInputChange = ({ target }) => {
-        console.log(target);
         
         const { name, value } = target;
-        console.log(name, value);
         setFormState({
             ...formState,
             [ name ]: value
@@ -84,16 +109,16 @@ export const SearchForm = () => {
             <div className="form-group row">
                 <label className="col-sm-2 col-form-label">Name</label>
                 <div className="col-sm-10">
-                <input 
-                    type="text" 
-                    className="form-control" 
-                    id="task" 
-                    placeholder="text" 
-                    name="taskName"
-                    autoComplete="off"
-                    value={ taskName }
-                    onChange={ onInputChange }
-                />
+                    <input 
+                        type="text" 
+                        className="form-control" 
+                        id="task" 
+                        placeholder="text" 
+                        name="taskName"
+                        autoComplete="off"
+                        value={ taskName }
+                        onChange={ onInputChange }
+                    />
                 </div>
             </div>
 

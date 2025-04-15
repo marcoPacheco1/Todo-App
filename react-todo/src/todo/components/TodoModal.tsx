@@ -1,4 +1,4 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material"
+import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, TextField, Typography } from "@mui/material"
 import { addHours, differenceInSeconds } from "date-fns";
 
 import { useContext, useEffect, useMemo, useState } from "react";
@@ -9,6 +9,10 @@ import { TodoContext } from "../../context/TodoContext";
 import todoApi from "../../api/TodoApi";
 import { TodoInterface } from "../interfaces/TodoInterface";
 
+interface MiDatePickerProps {
+    formValues: { dueDate: Date | null };
+    onDateChanged: (date: Date | null, fieldName: string) => void;
+}
 
 const style = {
     position: 'absolute',
@@ -76,41 +80,35 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
     
         setFormSubmitted(true);
 
-        const difference = differenceInSeconds( formValues.dueDate, new Date() );
+        // const difference = differenceInSeconds( formValues.dueDate, new Date() );
         
-        if ( isNaN( difference ) || difference <= 0 ) {
-            // Swal.fire('Fechas incorrectas','Revisar las fechas ingresadas','error');
-            console.log('error fecha');
+        // if ( isNaN( difference ) || difference <= 0 ) {
+        //     // Swal.fire('Fechas incorrectas','Revisar las fechas ingresadas','error');
+        //     console.log('error fecha');
             
-            return;
-        }
+        //     return;
+        // }
         
         if ( formValues.taskName.length <= 0 ) return;
         
-        // Valores del formulario
-        console.log(formValues);
-
+        
         const newTodoElement:TodoInterface = {
             done: false,
             // priority: action.payload.priority,
             ...formValues
         }
+        // Valores del formulario
+        console.log("formuarios update", newTodoElement);
 
         // BACKEND 
 
         if ('id' in formValues) {
             //update
-            // const { data } = await todoApi.get('', formValues );
             updateTodo(newTodoElement)
         }
         else{
             //new
-            // const { data } = await todoApi.get('', formValues );
-
             postTodo(newTodoElement)
-            // TODO: actualizar ilteredList
-            
-
         }
 
         // await startSavingEvent( formValues );
@@ -165,6 +163,27 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         })
     }
     
+    const handleClearDate = () => {
+        onDateChanged(null, 'dueDate'); // Llama a onDateChanged con null para limpiar la fecha
+    };
+    
+    const CustomInput: React.FC<ReactDatePickerProps> = ({ value, onClick }) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <input
+            type="text"
+            value={value || ''}
+            className="form-control"
+            onClick={onClick}
+            readOnly
+            style={{ flex: 1, marginRight: '8px' }}
+            />
+            <Button onClick={handleClearDate} color="secondary" size="small">
+            Limpiar
+            </Button>
+        </div>
+    );
+   
+
   return (
     <>
         {/* <Button onClick={handleOpen}>Open modal</Button> */}
@@ -189,7 +208,22 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
                         value={formValues.taskName}
                         onChange={onInputChange}
                     />
-                    <TextField
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel id="priority-select-label">Priority</InputLabel>
+                        <Select
+                            labelId="priority-select-label"
+                            id="priority-select"
+                            name="priority"
+                            value={formValues.priority}
+                            label="Prioridad"
+                            onChange={onInputChange}
+                        >
+                            <MenuItem value="Low">Low</MenuItem>
+                            <MenuItem value="Medium">Medium</MenuItem>
+                            <MenuItem value="High">High</MenuItem>
+                        </Select>
+                    </FormControl>
+                    {/* <TextField
                         fullWidth
                         margin="normal"
                         id="priority"
@@ -197,16 +231,18 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
                         label="Prioridad"
                         value={formValues.priority}
                         onChange={onInputChange}
-                    />
+                    /> */}
                     <DatePicker 
                         selected={formValues.dueDate}
                         onChange={ (event) => onDateChanged(event, 'dueDate') }
                         className="form-control"
                         dateFormat="Pp"
                         showTimeSelect
-                        timeCaption="Hora"
+                        timeCaption="time"
+                        customInput={<CustomInput />}
+
                     />
-                    {/* Agrega más campos de formulario aquí */}
+                    
                     <Button type="submit" variant="contained" color="primary">
                     Guardar
                     </Button>

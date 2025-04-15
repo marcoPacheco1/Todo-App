@@ -11,7 +11,6 @@ export const AddTodoButton = () => {
   } 
   const handleClose = () => setModalIsOpen(false);
 
-
   return (
     <>
       <button

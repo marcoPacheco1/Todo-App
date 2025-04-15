@@ -1,10 +1,13 @@
 
-import { useEffect, useReducer, useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 import { TodoContext } from "./TodoContext";
-import { TodoInterface } from "../todo/interfaces/TodoInterface";
 import { todoReducer } from "./TodoReducer";
 import { parseISO } from "date-fns";
 import todoApi from "../api/TodoApi";
+import { useLocation } from "react-router";
+import { GridSortModel } from "@mui/x-data-grid";
+import { MetricsInterface } from "../todo/interfaces/MetricsInterface";
+import { ModalInsertFormInput, ModalUpdateFormInput } from "../todo/interfaces/ModalForm";
 
 
 // const todo = {
@@ -41,36 +44,86 @@ import todoApi from "../api/TodoApi";
     
 // ];
 
-const init = () => {
-    return JSON.parse(localStorage.getItem('todos'))  || [];
-}
-
-// EFECTO secundario
-// useEffect(() => {
-//     localStorage.setItem('todos', JSON.stringify(todos));
-//   }, [todos]);
-
 export const TodoProvider = ({ children }) => {
+    const myPageSize: number = 3;
+
 
     const [filteredList, setFilteredList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [ todos, dispatch ] = useReducer( todoReducer, [] );
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    const location = useLocation();
 
 
-    const getAll = async() =>{
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: myPageSize,
+        page: 0,
+    });
+
+    const [sortModel, setSortModel] = React.useState<GridSortModel>([]);
+    const [rowCount, setRowCount] = useState(0);
+
+    const [metricModel, setMetricModel] = useState<MetricsInterface>({
+        averageTimeToFinishByPriority: {
+            Low: '',
+            Medium: '',
+            High: '',
+        },
+        averageEstimatedTimeToComplete: '', 
+    });
+
+
+
+    const getAll = async(params?: URLSearchParams ) =>{
         try {
-            const {data} = await todoApi.get('');
-            console.log('Todos en db:',data);
+            console.log('params', params);
+            if (!params) {
+                params = new URLSearchParams();
+            }
+
+            if (sortModel.length > 0) {
+                params.append('sortBy', sortModel[0].field.toUpperCase());
+                params.append('sortDirection', sortModel[0].sort.toUpperCase());
+            }
+            
+            params.append('page', paginationModel.page.toString());
+            params.append('size', paginationModel.pageSize.toString());
+            
+            const {data} = await todoApi.get('',{
+                params : params
+            });
+
+            await getMetrics();
+            
+            setPaginationModel({
+                pageSize: myPageSize,
+                page: data.currentPage,
+            });
+
+            // {totalItems: 3, fileredTodo: Array(2), totalPages: 2, currentPage: 1}
+            console.log('Todos en db:',data.fileredTodo);
+
+            let donesArray:any = [];
+            data.fileredTodo.map( (todo:any) =>{
+                if (todo.done)
+                    donesArray.push(todo.id);
+            });
+
+            setSelectedRows(donesArray);
+            
+
     
-            const dataFormatted = data.map( (todo:any) =>{
-                todo.dueDate = parseISO(todo.dueDate);
-                // console.log(todo);
+            const dataFormatted = data.fileredTodo.map( (todo:any) =>{
+                if (todo.dueDate)
+                    todo.dueDate = parseISO(todo.dueDate);
                 return todo;
             });
+            setRowCount(data.totalItems);
 
             const action = {
                 type: 'SetAllDB Todo',
-                payload: data
+                payload: data.fileredTodo
             }
             dispatch( action );
     
@@ -83,32 +136,23 @@ export const TodoProvider = ({ children }) => {
         }
     }
 
+    const getMetrics = async() => {
+        const metricsCall = await todoApi.get('/metrics');
+        const metrics: MetricsInterface = metricsCall.data;
+        setMetricModel(metrics);
+    }
+
+
+
     const getById = async(id:String) =>{
         try {
             console.log('get by:',id);
             const {data} = await todoApi.get(`/${id}`);
             console.log("Data obtenida");
+            await getMetrics();
             
             console.log(data);
             return data;
-            
-            // {id: '2', taskName: 'Hacer la tarea', priority: 'High', dueDate: '2025-04-09T03:58:20.330+00:00', done: false}
-           
-    
-            // const dataFormatted = data.map( (todo:any) =>{
-            //     todo.dueDate = parseISO(todo.dueDate);
-            //     console.log(todo);
-            //     return todo;
-            // });
-
-            // const action = {
-            //     type: 'SetAllDB Todo',
-            //     payload: data
-            // }
-            // dispatch( action );
-    
-            // setIsLoading(false);
-            // setfilteredList(dataFormatted);
             
         } catch (error) {
             console.log("Error al cargar");
@@ -116,12 +160,16 @@ export const TodoProvider = ({ children }) => {
         }
     }
 
-    const postTodo = async(formValues) =>{
+    const postTodo = async(formValues:ModalInsertFormInput) =>{
         try {
-            const { data } = await todoApi.post('', formValues );
-            console.log('llamando a post back res:', data);
+            console.log('llamando a post back res:', formValues);
+            const { data } = await todoApi.post('', formValues,{
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8'
+                }
+            } );
         
-            // Optimistic UI es necesario? Actualización del Estado Local 
+            // Optimistic UI is it neccesary? 
             if (data.id){
                 const action = {
                     type: 'Add Todo',
@@ -130,14 +178,79 @@ export const TodoProvider = ({ children }) => {
                 dispatch( action ); 
             }
             await getAll();
+            await getMetrics();
+
             
         } catch (error) {
-            console.log("Error al ppostear");
+            console.log("There was an error");
             console.log(error);
         }
     }
 
-    const updateTodo = async(formValues) =>{
+    const updateTodoDone = async(ids:String[]) =>{
+        try {
+            const promises = ids.map(async (id) => {
+                const data:any = await getById(id);
+                console.log(data);
+                if (data && !data.done){
+
+                    // POST http://localhost:8080/todos/{id}/done
+                    const r= await todoApi.post(`/${data.id}/done`);
+                    
+                    if (r.data.id){
+
+                        console.log(selectedRows);
+                        
+                        const action = {
+                            type: 'Update Todo',
+                            payload: r.data
+                        }
+                        dispatch( action );
+
+                    }
+                    return r.data;
+                }
+                else{
+                    // PUT http://localhost:8080/todos/{id}/undone
+                    const r= await todoApi.put(`/${data.id}/undone`);
+                    if (r.data.id){
+                        const action = {
+                            type: 'Update Todo',
+                            payload: r.data
+                        }
+                        dispatch( action );
+
+                    }
+                    return r.data;
+                }
+            });
+
+            const results = await Promise.all(promises);
+
+            setSelectedRows((prevSelectedRows) => {
+                let newSelectedRows = [...prevSelectedRows];
+                results.forEach((result) => {
+                if (result.done) {
+                    if (!newSelectedRows.includes(result.id)) {
+                        newSelectedRows.push(result.id);
+                    }
+                } else {
+                    newSelectedRows = newSelectedRows.filter((id) => id !== result.id);
+                }
+                });
+                return newSelectedRows;
+            });
+
+            
+            await getMetrics();
+
+    
+        } catch (error) {
+            console.log("There was an error ");
+            console.log(error);
+        }
+    }
+    const updateTodo = async(formValues:ModalUpdateFormInput) =>{
         try {
             console.log('llamando a update back', formValues);
             const { data } = await todoApi.put(`/${formValues.id}`, formValues );
@@ -150,9 +263,11 @@ export const TodoProvider = ({ children }) => {
                 }
                 dispatch( action );
             }
+            await getMetrics();
+
     
         } catch (error) {
-            console.log("Error al ppostear");
+            console.log("There was an error ");
             console.log(error);
         }
     }
@@ -160,9 +275,8 @@ export const TodoProvider = ({ children }) => {
     
       
 
-    const deleteTodo = async(id) =>{
+    const deleteTodo = async(id:String) =>{
         try {
-            console.log('llamando a delete back', id);
             const { data } = await todoApi.delete(`/${id}`);
             console.log(data);
             
@@ -172,6 +286,7 @@ export const TodoProvider = ({ children }) => {
             }
             dispatch( action );
             
+            await getMetrics();
 
             // await getAll();
 
@@ -181,15 +296,53 @@ export const TodoProvider = ({ children }) => {
         }
     }
 
+
     useEffect(() => {
-        getAll();
-    }, []);
+        const updateRecords = async () => {
+            try {
+                const params = new URLSearchParams(location.search);
+                
+                console.log('QWERTYLocation:', location);
+                console.log('Location.search:', location.search);
+                
+                await getAll(params);
+                await getMetrics();
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        updateRecords();
+    }, [location.search, paginationModel.page,sortModel ]);
+
+    // useEffect(() => {
+    //     const updateRecords2 = async () => {
+    //         try {
+                
+    //             await getAll();
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     };
+    //     updateRecords2();
+    // }, [paginationModel.page]);
+
+    // useEffect(() => {
+    //     const hasQueryParams = location.search !== ''; // Verifica si hay parámetros de consulta
+    //     console.log('qwert');
+        
+    //     if (!hasQueryParams) {
+    //         getAll();
+    //     }
+    // }, [location.search]);
 
 
     return (
         
         <TodoContext.Provider value={{ filteredList, setFilteredList,todos, dispatch, isLoading, 
-            getAll, postTodo, updateTodo, deleteTodo, getById
+            getAll, postTodo, updateTodo, deleteTodo, getById,
+            paginationModel, rowCount, setPaginationModel, 
+            sortModel, setSortModel, metricModel, updateTodoDone, selectedRows, setSelectedRows
         }}>
             { children }
         </TodoContext.Provider>

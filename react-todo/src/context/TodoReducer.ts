@@ -59,13 +59,12 @@ export const todoReducer = ( todos = [], action ) => {
             return action.payload;
 
         case 'Update Todo':
-            console.log('actualizando');
+            console.log('actualizando',action.payload.id);
             const n = todos.map(todo =>
                 todo.id === action.payload.id
                     ? {
                         ...todo,
                         ...action.payload,
-                        dueDate: new Date(action.payload.dueDate), // Convertir a Date si es necesario
                     }
                     : todo
                 );
