@@ -30,12 +30,27 @@ public class TodoRepository implements ITodoRepository{
     private static final int pageElements = 10;
 
     public static List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
-        new Todo("1", "Buy bread", PriorityEnum.High, 
-            LocalDateTime.of(2025, 5, 18,0,0), true),
-        new Todo("2", "Pay bills", PriorityEnum.High, 
-            LocalDateTime.of(2025, 6, 1,0,0), false),
-        new Todo("3", "Study react", PriorityEnum.Low, 
-            LocalDateTime.of(2025, 3, 1,0,0), false)
+        new Todo("1", "Buy bread", PriorityEnum.High, LocalDateTime.of(2025, 5, 18, 0, 0), true),
+        new Todo("2", "Pay bills", PriorityEnum.High, LocalDateTime.of(2025, 6, 1, 0, 0), false),
+        new Todo("3", "Study react", PriorityEnum.Low, LocalDateTime.of(2025, 3, 1, 0, 0), false),
+        new Todo("4", "Practice unit tests in react", PriorityEnum.Low, null, false),
+        new Todo("5", "Go to the gym", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 20, 10, 0), false),
+        new Todo("6", "Read a book", PriorityEnum.Low, LocalDateTime.of(2025, 7, 15, 18, 30), false),
+        new Todo("7", "Write a blog post", PriorityEnum.High, null, false),
+        new Todo("8", "Meet with John", PriorityEnum.High, null, false),
+        new Todo("9", "Cook dinner", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 16, 19, 0), false),
+        new Todo("10", "Walk the dog", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 17, 7, 0), false),
+        new Todo("11", "Do laundry", PriorityEnum.Low, LocalDateTime.of(2025, 4, 19, 11, 0), false),
+        new Todo("12", "Call mom", PriorityEnum.High, LocalDateTime.of(2025, 4, 18, 16, 0), false),
+        new Todo("13", "Plan vacation", PriorityEnum.Medium, LocalDateTime.of(2025, 5, 25, 15, 0), false),
+        new Todo("14", "Clean the house", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 21, 10, 0), false),
+        new Todo("15", "Water the plants", PriorityEnum.Low, LocalDateTime.of(2025, 4, 17, 8, 0), false),
+        new Todo("16", "Review code", PriorityEnum.High, null, false),
+        new Todo("17", "Prepare presentation", PriorityEnum.High, LocalDateTime.of(2025, 4, 25, 14, 30), false),
+        new Todo("18", "Fix bug in production", PriorityEnum.High, LocalDateTime.now().plusDays(1), false),
+        new Todo("19", "Test new feature", PriorityEnum.Medium, LocalDateTime.now().plusDays(3), false),
+        new Todo("20", "Refactor database layer", PriorityEnum.Medium, LocalDateTime.of(2025, 7, 1, 0, 0), false),
+        new Todo("21", "Learn a new programming language", PriorityEnum.Low, null, false)
     ));
         
     @Override

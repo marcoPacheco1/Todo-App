@@ -17,8 +17,6 @@ export const TodoTable = () => {
 
 
     const columnKeys = () =>{
-        console.log(filteredList);
-        
         if (filteredList && filteredList.length > 0) {
             return [ "taskName", "priority", "dueDate"];
         }
@@ -99,8 +97,13 @@ export const TodoTable = () => {
             const rowData: { id: string; [key: string]: any } = { id: todo.id };
 
             columnKeys().forEach((key) => {
-                if (key === 'dueDate')
-                    rowData[key] = format(todo[key], 'yyyy-MM-dd');
+                if (key === 'dueDate'){
+                    const dueDate = todo[key];
+                    if (dueDate !== null)
+                    {
+                        rowData[key] = format(todo[key], 'yyyy-MM-dd');
+                    }
+                }
                 else
                     rowData[key] = todo[key];
             });
