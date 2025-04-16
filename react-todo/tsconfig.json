@@ -3,5 +3,18 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "commonjs",
+    "target": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
 }
