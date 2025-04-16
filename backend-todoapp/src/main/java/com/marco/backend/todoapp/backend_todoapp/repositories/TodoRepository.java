@@ -27,7 +27,7 @@ import com.marco.backend.todoapp.backend_todoapp.models.entities.Todo;
 
 @Repository
 public class TodoRepository implements ITodoRepository{
-    private static final int pageElements = 3;
+    private static final int pageElements = 10;
 
     public static List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
         new Todo("1", "Buy bread", PriorityEnum.High, 
@@ -111,7 +111,7 @@ public class TodoRepository implements ITodoRepository{
         int totalPages = (int) Math.ceil((double) fileredTodo.size() / pageElements) ;
         if (page == null)
             page = 0;
-        else if (page >= totalPages)
+        else if (page > totalPages)
             page = totalPages - 1;
 
         int start = (page ) * pageElements;
