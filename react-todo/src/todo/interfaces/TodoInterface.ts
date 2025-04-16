@@ -1,7 +1,7 @@
 export interface TodoInterface {
-  id: number;
+  id?: string;
   taskName: string;
-  priority: 'Low' | 'Medium' | 'High';
+  priority: string;
   dueDate?: Date | null;
   done: boolean;
 }

@@ -1,3 +1,4 @@
+import React from 'react'; // It's necessary to declare the unit tests.
 
 
 export const Navbar = () => {

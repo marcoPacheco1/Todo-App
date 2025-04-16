@@ -1,3 +1,5 @@
+import React, { ChangeEvent } from 'react'; // It's necessary to declare the unit tests.
+
 import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, TextField, Typography } from "@mui/material"
 import { addHours, differenceInSeconds } from "date-fns";
 
@@ -44,10 +46,6 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         if (todo !== undefined)
             setFormValues({ ...todo });
     }, [ todo ])
-      
-
-    console.log("eveto:",);
-    
     // const { taskName, priority, dueDate } = formState;
 
     
@@ -61,7 +59,7 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
 
     }, [ formValues.taskName, formSubmitted ])
     
-    const onInputChange = ({ target }) => {
+    const onInputChange = ({ target }: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         // console.log(target);
         
         const { name, value } = target;
@@ -72,9 +70,7 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         });
     }
 
-    
-
-    const onSubmit = async( event ) => {
+    const onSubmit = async( event: React.FormEvent<HTMLFormElement> ) => {
         
         event.preventDefault();
     
@@ -143,28 +139,18 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
         
         setFormSubmitted(false);
         // Aquí puedes enviar los datos del formulario o realizar otras acciones
-        handleClose();
-        console.log("todos local ");
-        console.log(todos);
-
-        // await getAll();
-
-        
+        handleClose();        
     }
-
-
-    
 
     const onDateChanged = ( event, changing ) => {
         setFormValues({
             ...formValues,
-            // changing es start or end
             [changing]: event
         })
     }
     
     const handleClearDate = () => {
-        onDateChanged(null, 'dueDate'); // Llama a onDateChanged con null para limpiar la fecha
+        onDateChanged(null, 'dueDate');
     };
     
     const CustomInput: React.FC<ReactDatePickerProps> = ({ value, onClick }) => (
@@ -186,7 +172,6 @@ export const TodoModal = ({modalIsOpen, handleClose, todo}) => {
 
   return (
     <>
-        {/* <Button onClick={handleOpen}>Open modal</Button> */}
         <Modal
             open={modalIsOpen}
             onClose={handleClose}

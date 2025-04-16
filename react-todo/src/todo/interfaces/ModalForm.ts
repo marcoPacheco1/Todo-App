@@ -14,3 +14,10 @@ export interface ModalUpdateFormInput {
     doneDate:     Date;
     creationDate: Date;
 }
+
+
+export interface FilterForm {
+    priority?: string;
+    taskName?: string;
+    state?: string;
+}

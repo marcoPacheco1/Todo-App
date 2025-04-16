@@ -1,25 +1,25 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
 
-import { DataGrid, GridColDef, GridRenderCellParams, GridRowParams, GridRowsProp, GridSortModel } from '@mui/x-data-grid';
-import { TodoInterface } from "../interfaces/TodoInterface";
-import { todoReducer } from "../../context/TodoReducer";
-import { Checkbox } from "@mui/material";
+import { DataGrid, GridColDef, GridRowParams, GridRowsProp } from '@mui/x-data-grid';
 import { EditTodoButton } from "./EditTodoButton";
-import todoApi from "../../api/TodoApi";
+import { format } from "date-fns";
+import { TodoInterface } from "../interfaces/TodoInterface";
 
 
 
 export const TodoTable = () => {
 
-    const { todos, dispatch, setFilteredList, filteredList, deleteTodo, getById, updateTodo,
+    const { dispatch, setFilteredList, filteredList, deleteTodo, getById, updateTodo,
         paginationModel, setPaginationModel, rowCount, sortModel, setSortModel, updateTodoDone,
         selectedRows, setSelectedRows
      } = useContext( TodoContext );
 
 
     const columnKeys = () =>{
-        if (todos && todos.length > 0) {
+        console.log(filteredList);
+        
+        if (filteredList && filteredList.length > 0) {
             return [ "taskName", "priority", "dueDate"];
         }
         return [];
@@ -29,20 +29,20 @@ export const TodoTable = () => {
         console.log('Borrar ID:', id);
         deleteTodo(id);
         
-        setFilteredList(filteredList.filter(todo => todo.id !== id));
+        setFilteredList(filteredList.filter( (todo:TodoInterface) => todo.id !== id));
     };
 
 
-    useEffect(() => {
-        setFilteredList((filteredList) =>
-            filteredList.map((filteredTodo) => {
-            const updatedTodo = todos.find((todo) => todo.id === filteredTodo.id);
-            return updatedTodo ? updatedTodo : filteredTodo;
-          })
-        );
-    }, [todos]);
+    // useEffect(() => {
+    //     setFilteredList((filteredList: TodoInterface[]) =>
+    //         filteredList.map((filteredTodo: TodoInterface) => {
+    //         const updatedTodo = todos.find((todo: TodoInterface) => todo.id === filteredTodo.id);
+    //         return updatedTodo ? updatedTodo : filteredTodo;
+    //       })
+    //     );
+    // }, [todos]);
 
-    const handleToggleDone = async(newRowsSelected) => {
+    const handleToggleDone = async(newRowsSelected: String[]) => {
         let difference: String[] | null = [];
 
         if (newRowsSelected.length > selectedRows.length) {
@@ -79,10 +79,10 @@ export const TodoTable = () => {
             
             if (key !== 'done')
                 arr.push({
-                    field: key, headerName: headerName, width: 150
+                    field: key, headerName: headerName, flex: 1
                 });
         })
-        arr.push({field: 'actions', headerName: 'Actions', width: 150, renderCell: (params) => (
+        arr.push({field: 'actions', headerName: 'Actions', flex: 1, renderCell: (params) => (
             <div>
               <EditTodoButton id = {params.row.id}/>
               <button className="m-2 btn btn-outline-dark" onClick={() => handleDelete(params.row.id)}>Delete</button>
@@ -95,11 +95,14 @@ export const TodoTable = () => {
     const getRows = () => {
 
         const arr: GridRowsProp[] = [];
-        filteredList.map((todo) => {
-            const rowData: { id: number; [key: string]: any } = { id: todo.id };
+        filteredList.map((todo:TodoInterface) => {
+            const rowData: { id: string; [key: string]: any } = { id: todo.id };
 
             columnKeys().forEach((key) => {
-              rowData[key] = todo[key];
+                if (key === 'dueDate')
+                    rowData[key] = format(todo[key], 'yyyy-MM-dd');
+                else
+                    rowData[key] = todo[key];
             });
             arr.push(rowData);
         });
@@ -144,8 +147,8 @@ export const TodoTable = () => {
         setSortModel(newSortModel);
     };
     return (
-        <>
-            <div style={{ height: 300, width: '100%' }}>
+        <div className="m-3">
+            <div style={{ height: '100%', width: '100%' }} >
                 <DataGrid
                     checkboxSelection
                     rows={rows}
@@ -163,6 +166,6 @@ export const TodoTable = () => {
                     disableRowSelectionOnClick                
                 />
             </div>
-        </>
+        </div>
     )
 }

@@ -1,16 +1,29 @@
+import React, { ChangeEvent } from 'react'; // It's necessary to declare the unit tests.
+
 import { useContext, useEffect, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
 import { useLocation, useNavigate } from "react-router";
+import { FilterForm } from '../interfaces/ModalForm';
 
 export const SearchForm = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    
+    interface Params {
+        name?: string;
+        done?: boolean;
+        priority?: string;
+        [key: string]: any;
+    }
+      
 
     const {filteredList, setFilteredList, todos, dispatch, getAll } = useContext( TodoContext );
     
-    const [ formState, setFormState ] = useState( {} );
+    const [ formState, setFormState ] = useState<FilterForm>( {
+        taskName: '',
+        priority: 'All',
+        state: 'All'
+    } );
 
     const { taskName, priority, state } = formState;
 
@@ -22,7 +35,7 @@ export const SearchForm = () => {
     const buildURL = async() => {
         // http://localhost:8080/todos?done=false&page=1&name=pan&priority=Low
 
-        const params = {};
+        const params:Params = {};
 
         if (formState.hasOwnProperty('taskName')){
             params.name = formState['taskName'];
@@ -55,19 +68,9 @@ export const SearchForm = () => {
         await getAll(params);
 
     }
-    // useEffect(() => {
-    //     buildURL();
-    // },[location.search]); 
 
-    const onSearchSubmit = async(event) =>{
-        // await getAll();
+    const onSearchSubmit = async(event: React.FormEvent<HTMLFormElement>) =>{
         event.preventDefault();
-        // onResetFilter();
-        const {target} = event;
-
-        console.log('al presionar filtar:', formState);
-
-        
         buildURL();
     }
 
@@ -76,9 +79,9 @@ export const SearchForm = () => {
         console.log(location.search);
         console.log(params.get('done') === 'true');
         
-        const newFormState = {
+        const newFormState:FilterForm = {
             taskName: params.get('name') || '',
-            priority: params.get('priority') || 'All',
+            priority: params.get('priority') || 'All',   
         };
         if (params.get('done') === 'false')
             newFormState.state = 'Undone' ;
@@ -88,8 +91,7 @@ export const SearchForm = () => {
     }, [location.search]);
 
 
-    const onInputChange = ({ target }) => {
-        
+    const onInputChange = ({ target }: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = target;
         setFormState({
             ...formState,
@@ -128,11 +130,11 @@ export const SearchForm = () => {
                 </label>
                 <div className="col-sm-10">
                     <select
-                    className="form-control"
-                    id="inlineFormCustomSelectPriority"
-                    name="priority"
-                    value={ priority }
-                    onChange={ onInputChange }
+                        className="form-control"
+                        id="inlineFormCustomSelectPriority"
+                        name="priority"
+                        value={ priority }
+                        onChange={ onInputChange }
                     >
                         <option value="All">All</option>
                         <option value="High">High</option>

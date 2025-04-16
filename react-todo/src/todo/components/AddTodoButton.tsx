@@ -1,10 +1,10 @@
+import React from 'react'; // It's necessary to declare the unit tests.
 import { useState } from "react";
 import { TodoModal } from "./TodoModal";
 
 export const AddTodoButton = () => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const handleOpen = () => {
-    console.log('model abierto');
     setModalIsOpen(true);
     console.log(modalIsOpen);
     
@@ -14,10 +14,9 @@ export const AddTodoButton = () => {
   return (
     <>
       <button
-          className="btn btn-primary fab"
-          onClick={ handleOpen }
-      >
-          <i className="fas fa-plus"></i>
+          className="btn btn-primary m-4"
+          onClick={ handleOpen }   
+      >Add New TODO
       </button>
       {modalIsOpen && (
         <TodoModal

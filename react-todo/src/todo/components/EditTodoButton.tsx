@@ -1,15 +1,18 @@
+import React from 'react'; // It's necessary to declare the unit tests.
+
 import { useContext, useState } from "react";
 import { TodoModal } from "./TodoModal";
 import { TodoContext } from "../../context/TodoContext";
+import { TodoInterface } from '../interfaces/TodoInterface';
 
-export const EditTodoButton = ({id}:Number) => {
+export const EditTodoButton = ({id}:{ id: string }) => {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const {  todos } = useContext( TodoContext );
+  const {  filteredList } = useContext( TodoContext );
   const [todoToEdit, setTodoToEdit] = useState(null);
 
   const handleOpen = () => {
-    const todo = todos.find(todo => todo.id === id);
+    const todo = filteredList.find((todo:TodoInterface) => todo.id === id);
     
     setTodoToEdit(todo);
   
@@ -21,10 +24,9 @@ export const EditTodoButton = ({id}:Number) => {
   return (
     <>
       <button
-          className="btn btn-secondary fab"
+          className="btn btn-primary"
           onClick={ handleOpen }
-      >
-          <i className="fas fa-edit"></i>
+      >Editar
       </button>
       {modalIsOpen && (
         <TodoModal
