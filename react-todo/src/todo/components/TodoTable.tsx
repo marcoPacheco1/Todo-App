@@ -24,15 +24,13 @@ export const TodoTable = () => {
     };
 
     const handleDelete = (id: string) => {
-        console.log('Borrar ID:', id);
         deleteTodo(id);
         
         setFilteredList(filteredList.filter( (todo:TodoInterface) => todo.id !== id));
     };
 
     const handleToggleDone = async(newRowsSelected: string[]) => {
-        let difference: string[] | null = [];
-
+        let difference: string[] | null = [];        
         if (newRowsSelected.length > selectedRows.length) {
             newRowsSelected.forEach((id:string) => {
                 console.log(id);
@@ -134,6 +132,8 @@ export const TodoTable = () => {
 
     const handlePaginationModelChange = (newPaginationModel: GridPaginationModel) => {
         // newPaginationModel : {page: 1, pageSize: 2}
+        console.log("nueva pagina");
+        
         setPaginationModel(newPaginationModel);
     };
 

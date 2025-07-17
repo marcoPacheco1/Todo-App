@@ -8,14 +8,15 @@ import { MemoryRouter } from 'react-router';
 jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/Navbar', () => ({
   Navbar: () => <div>Navbar</div>
 }));
+jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/SearchForm', () => ({
+  SearchForm: () => <div>SearchForm</div>
+}));
+
 jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/AddTodoButton', () => ({
   AddTodoButton: () => <div>AddTodoButton</div>
 }));
 jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/TodoTable', () => ({
   TodoTable: () => <div>TodoTable</div>
-}));
-jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/AddTodoButton', () => ({
-  AddTodoButton: () => <div>TodoTable</div>
 }));
 
 jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/components/Metrics', () => ({
@@ -25,13 +26,6 @@ jest.mock('/Users/marco.pacheco/Code/Repos/React/Todo-App/react-todo/src/todo/co
 
 
 describe('TodoPage', () => {
-  // const renderComponent = (isLoading = false) => {
-  //   return render(
-  //     <TodoContext.Provider value={{ isLoading }}>
-  //       <TodoPage />
-  //     </TodoContext.Provider>
-  //   );
-  // };
 
   const renderComponent = (isLoading: boolean) => {
     render(
@@ -43,7 +37,14 @@ describe('TodoPage', () => {
     );
   };
  
- 
+  test('renders all subcomponents', () => {
+    renderComponent();
+    expect(screen.getByText('Navbar')).toBeInTheDocument();
+    expect(screen.getByText('SearchForm')).toBeInTheDocument();
+    expect(screen.getByText('AddTodoButton')).toBeInTheDocument();
+    expect(screen.getByText('TodoTable')).toBeInTheDocument();
+    expect(screen.getByText('Metrics')).toBeInTheDocument();
+  });
 
   test('renders loading message when isLoading is true', () => {
     renderComponent(true);

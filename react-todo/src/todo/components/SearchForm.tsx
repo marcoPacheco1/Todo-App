@@ -104,6 +104,7 @@ export const SearchForm = () => {
                         id="task" 
                         placeholder="Type a task to search" 
                         name="taskName"
+                        aria-label="taskName"
                         autoComplete="off"
                         value={ taskName }
                         onChange={ onInputChange }

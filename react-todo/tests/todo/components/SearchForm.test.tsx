@@ -55,4 +55,17 @@ describe('SearchForm', () => {
     expect(getAll).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalled();
   });
+
+  test('updates input values on change', () => {
+    renderComponent();
+    const taskNameInput = screen.getByLabelText(/taskName/i);
+    fireEvent.change(taskNameInput, { target: { value: 'another task' } });
+    expect(taskNameInput).toHaveValue('another task');
+    const prioritySelect = screen.getByLabelText(/priority/i);
+    fireEvent.change(prioritySelect, { target: { value: 'Medium' } });
+    expect(prioritySelect).toHaveValue('Medium');
+    const stateSelect = screen.getByLabelText(/state/i);
+    fireEvent.change(stateSelect, { target: { value: 'Undone' } });
+    expect(stateSelect).toHaveValue('Undone');
+  });
 });

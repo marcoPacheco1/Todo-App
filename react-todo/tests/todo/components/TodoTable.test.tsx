@@ -4,7 +4,6 @@ import '@testing-library/jest-dom';
 import { TodoTable } from '../../../src/todo/components/TodoTable';
 import { TodoContext } from '../../../src/context/TodoContext';
 
-// Mocks para los métodos del contexto
 const mockDeleteTodo = jest.fn();
 const mockUpdateTodoDone = jest.fn();
 const mockSetFilteredList = jest.fn();
@@ -12,7 +11,6 @@ const mockSetPaginationModel = jest.fn();
 const mockSetSortModel = jest.fn();
 const mockSetSelectedRows = jest.fn();
 
-// Datos simulados
 const mockTodos = [
   { id: 1, taskName: 'Task A', priority: 'High', dueDate: '2025-04-20' },
   { id: 2, taskName: 'Task B', priority: 'Medium', dueDate: '2025-05-01' },
@@ -61,6 +59,30 @@ describe('TodoTable component', () => {
     fireEvent.click(deleteButtons[0]);
     expect(mockDeleteTodo).toHaveBeenCalledWith(1);
     expect(mockSetFilteredList).toHaveBeenCalled();
+  });
+
+
+  test('calls updateTodoDone when marking a row as done', () => {
+    renderComponent();
+    const checkboxes = screen.getAllByRole('checkbox');
+    fireEvent.click(checkboxes[1]);
+    expect(mockUpdateTodoDone).toHaveBeenCalled();
+  });
+
+
+
+  test('calls updateTodoDone when user deselect a row', async () => {
+    const initialSelectedRows = ['1', '2'];
+    contextValue.selectedRows = initialSelectedRows;
+    renderComponent();
+
+    const newRowsSelected = ['1'];
+    mockSetSelectedRows.mockImplementationOnce(() => {
+        contextValue.selectedRows = newRowsSelected;
+    });
+
+    await contextValue.updateTodoDone(['2']);
+    expect(mockUpdateTodoDone).toHaveBeenCalledWith(['2']);
   });
 
 });

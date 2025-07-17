@@ -127,7 +127,6 @@ return render(
       const submitButton = screen.getByRole('button', { name: /Save/i });
       fireEvent.click(submitButton);
       const taskNameInput = screen.getByLabelText(/Task name/i);
-      console.log(taskNameInput.className);
       expect(taskNameInput.parentElement).toHaveClass('is-invalid'); // Verifica la clase en el contenedor
     });
 
