@@ -45,7 +45,7 @@ return render(
   
       expect(screen.getByLabelText(/task name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/priority/i)).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /guardar/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
     });
   
     test('fills and submits form with correct data', async () => {
@@ -53,7 +53,7 @@ return render(
   
       const taskNameInput = screen.getByLabelText(/task name/i);
       const prioritySelect = screen.getByLabelText(/priority/i);
-      const submitButton = screen.getByRole('button', { name: /guardar/i });
+      const submitButton = screen.getByRole('button', { name: /save/i });
   
       fireEvent.change(taskNameInput, { target: { value: 'New Task' } });
       fireEvent.mouseDown(prioritySelect);
@@ -77,21 +77,65 @@ return render(
     test('calls handleClose on cancel button', () => {
       renderComponent();
   
-      const cancelButton = screen.getByRole('button', { name: /cancelar/i });
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
       fireEvent.click(cancelButton);
   
       expect(mockHandleClose).toHaveBeenCalled();
     });
   
-    test('clears date when limpiar is clicked', async () => {
+    test('clears date when clear button is clicked', async () => {
       renderComponent();
   
-      const clearButton = screen.getByRole('button', { name: /limpiar/i });
+      const clearButton = screen.getByRole('button', { name: /clean/i });
       fireEvent.click(clearButton);
   
-      // Date should be null after "Limpiar"
       await waitFor(() => {
-        expect(mockPostTodo).not.toHaveBeenCalled(); // just verifying it's not auto-submitted
+        expect(mockPostTodo).not.toHaveBeenCalled();
       });
     });
+
+    test('Do not send data when form is submitted without input', async () => {
+      renderComponent();
+      const submitButton = screen.getByRole('button', { name: /Save/i });
+      fireEvent.click(submitButton);
+      await waitFor(() => {
+        expect(mockPostTodo).not.toHaveBeenCalled();
+        expect(mockUpdateTodo).not.toHaveBeenCalled();
+      });
+    });
+
+    test('Call updateTodo function if si the modal include an id (Edit)', async () => {
+      const todo = { id: 123, taskName: 'Task before', priority: 'Medium', dueDate: new Date(), done: false };
+      renderComponent({ todo });
+      const taskNameInput = screen.getByLabelText(/task name/i);
+      fireEvent.change(taskNameInput, { target: { value: 'Task was edited' } });
+      const submitButton = screen.getByRole('button', { name: /Save/i });
+      fireEvent.click(submitButton);
+      await waitFor(() => {
+        expect(mockUpdateTodo).toHaveBeenCalledWith(
+          expect.objectContaining({
+            taskName: 'Task was edited',
+            id: 123,
+          })
+        );
+        expect(mockHandleClose).toHaveBeenCalled();
+      });
+    });
+
+    test('shows is-invalid class if the name is empty after submit', async () => {
+      renderComponent();
+      const submitButton = screen.getByRole('button', { name: /Save/i });
+      fireEvent.click(submitButton);
+      const taskNameInput = screen.getByLabelText(/Task name/i);
+      console.log(taskNameInput.className);
+      expect(taskNameInput.parentElement).toHaveClass('is-invalid'); // Verifica la clase en el contenedor
+    });
+
+    test('Loads initial values if a todo object is provided (edit mode)', () => {
+      const todo = { id: 1, taskName: 'Tarea inicial', priority: 'Low', dueDate: new Date(), done: false };
+      renderComponent({ todo });
+      expect(screen.getByDisplayValue('Tarea inicial')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Low')).toBeInTheDocument();
+    });
 });
+

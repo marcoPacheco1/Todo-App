@@ -1,5 +1,5 @@
 
-import React, { useEffect, useReducer, useState } from "react"
+import React, { ReactNode, useEffect, useMemo, useState } from "react"
 import { TodoContext } from "./TodoContext";
 import { parseISO } from "date-fns";
 import todoApi from "../api/TodoApi";
@@ -11,14 +11,16 @@ import { TodoInterface } from "../todo/interfaces/TodoInterface";
 import { AxiosResponse } from "axios";
 import { TodoResponseInterface } from "../todo/interfaces/TodoResponseInterface";
 
-export const TodoProvider = ({ children }) => {
-    const myPageSize: number = 10;
+interface TodoProviderProps {
+    children: ReactNode;
+}
 
+export const TodoProvider = ({ children }: TodoProviderProps) => {
+    const myPageSize: number = 10;
 
     const [filteredList, setFilteredList] = useState<TodoInterface[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    // const [ todos, dispatch ] = useReducer( todoReducer, [] );
-    const [selectedRows, setSelectedRows] = useState([]);
+    const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
     const location = useLocation();
 
@@ -39,8 +41,6 @@ export const TodoProvider = ({ children }) => {
         averageEstimatedTimeToComplete: '', 
     });
 
-
-
     const getAll = async(params?: URLSearchParams ) =>{
         try {
             console.log('params', params);
@@ -48,9 +48,12 @@ export const TodoProvider = ({ children }) => {
                 params = new URLSearchParams();
             }
 
-            if (sortModel.length > 0) {
-                params.append('sortBy', sortModel[0].field.toUpperCase());
+            if (sortModel.length > 0 && sortModel[0]?.sort) {
                 params.append('sortDirection', sortModel[0].sort.toUpperCase());
+            }
+            
+            if (sortModel.length > 0 && sortModel[0]?.field) {
+                params.append('sortBy', sortModel[0].field.toUpperCase());
             }
             
             params.append('page', paginationModel.page.toString());
@@ -145,18 +148,21 @@ export const TodoProvider = ({ children }) => {
                 }
             });
 
-            const results = await Promise.all(promises);
+            const results: Array<TodoInterface>  = await Promise.all(promises);
 
             setSelectedRows((prevSelectedRows) => {
                 let newSelectedRows = [...prevSelectedRows];
-                results.forEach((result) => {
-                if (result.done) {
-                    if (!newSelectedRows.includes(result.id)) {
-                        newSelectedRows.push(result.id);
+                results.forEach((result:TodoInterface) => {
+                    console.log("Result from updateTodoDone: ");
+                    
+                    console.log(result);
+                    if (result.done && result?.id) {
+                        if (!newSelectedRows.includes(result.id)) {
+                            newSelectedRows.push(result.id);
+                        }
+                    } else {
+                        newSelectedRows = newSelectedRows.filter((id) => id !== result.id);
                     }
-                } else {
-                    newSelectedRows = newSelectedRows.filter((id) => id !== result.id);
-                }
                 });
                 return newSelectedRows;
             });
@@ -200,15 +206,27 @@ export const TodoProvider = ({ children }) => {
         updateRecords();
     }, [location.search, paginationModel.page,sortModel ]);
 
+
+    const contextValue = useMemo(() => ({
+        filteredList,
+        setFilteredList,
+        // todos, dispatch,
+        isLoading,
+        getAll, postTodo, updateTodo, deleteTodo, getById,
+        paginationModel, rowCount, setPaginationModel,
+        sortModel, setSortModel, metricModel, updateTodoDone, selectedRows, setSelectedRows
+      }), [
+        filteredList, setFilteredList,
+        // todos, dispatch,
+        isLoading,
+        getAll, postTodo, updateTodo, deleteTodo, getById,
+        paginationModel, rowCount, setPaginationModel,
+        sortModel, setSortModel, metricModel, updateTodoDone, selectedRows, setSelectedRows
+    ]);
+
     return (
         
-        <TodoContext.Provider value={{ filteredList, setFilteredList,
-            // todos, dispatch, 
-            isLoading, 
-            getAll, postTodo, updateTodo, deleteTodo, getById,
-            paginationModel, rowCount, setPaginationModel, 
-            sortModel, setSortModel, metricModel, updateTodoDone, selectedRows, setSelectedRows
-        }}>
+        <TodoContext.Provider value={contextValue}>
             { children }
         </TodoContext.Provider>
     )

@@ -2,8 +2,6 @@ import React from 'react'; // It's necessary to declare the unit tests.
 
 import { useContext, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
-import { differenceInMinutes, differenceInSeconds, format } from "date-fns";
-import { TodoInterface } from "../interfaces/TodoInterface";
 
 export const Metrics = () => {
 

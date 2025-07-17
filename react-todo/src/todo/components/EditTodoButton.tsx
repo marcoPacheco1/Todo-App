@@ -9,7 +9,7 @@ export const EditTodoButton = ({id}:{ id: string }) => {
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const {  filteredList } = useContext( TodoContext );
-  const [todoToEdit, setTodoToEdit] = useState(null);
+  const [todoToEdit, setTodoToEdit] = useState<TodoInterface | undefined>(undefined);
 
   const handleOpen = () => {
     const todo = filteredList.find((todo:TodoInterface) => todo.id === id);
@@ -26,7 +26,7 @@ export const EditTodoButton = ({id}:{ id: string }) => {
       <button
           className="btn btn-primary"
           onClick={ handleOpen }
-      >Editar
+      >Edit
       </button>
       {modalIsOpen && (
         <TodoModal

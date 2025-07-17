@@ -17,7 +17,7 @@ export const SearchForm = () => {
     }
       
 
-    const {filteredList, setFilteredList, todos, dispatch, getAll } = useContext( TodoContext );
+    const {getAll } = useContext( TodoContext );
     
     const [ formState, setFormState ] = useState<FilterForm>( {
         taskName: '',
@@ -26,11 +26,6 @@ export const SearchForm = () => {
     } );
 
     const { taskName, priority, state } = formState;
-
-    const onResetFilter = () => {
-        dispatch({ type: 'Reset Todo', payload: allTodos });
-    };
-
 
     const buildURL = async() => {
         // http://localhost:8080/todos?done=false&page=1&name=pan&priority=Low
@@ -66,7 +61,6 @@ export const SearchForm = () => {
         navigate(url, { replace: true });
         console.log('parametros URL:', params);
         await getAll(params);
-
     }
 
     const onSearchSubmit = async(event: React.FormEvent<HTMLFormElement>) =>{
@@ -76,8 +70,6 @@ export const SearchForm = () => {
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
-        console.log(location.search);
-        console.log(params.get('done') === 'true');
         
         const newFormState:FilterForm = {
             taskName: params.get('name') || '',
@@ -99,11 +91,6 @@ export const SearchForm = () => {
         });
     }
 
-    const onResetForm = () => {
-        setFormState( {} );
-    }
-
-
     return (
     <>
         <form className="form-inline p-4" onSubmit={ onSearchSubmit }>
@@ -115,7 +102,7 @@ export const SearchForm = () => {
                         type="text" 
                         className="form-control" 
                         id="task" 
-                        placeholder="text" 
+                        placeholder="Type a task to search" 
                         name="taskName"
                         autoComplete="off"
                         value={ taskName }

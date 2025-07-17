@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { TodoContext } from "../../context/TodoContext";
 
-import { DataGrid, GridColDef, GridRowParams, GridRowsProp } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridPaginationModel, GridRowParams, GridRowsProp, GridSortModel } from '@mui/x-data-grid';
 import { EditTodoButton } from "./EditTodoButton";
 import { format } from "date-fns";
 import { TodoInterface } from "../interfaces/TodoInterface";
@@ -10,9 +10,9 @@ import { TodoInterface } from "../interfaces/TodoInterface";
 
 export const TodoTable = () => {
 
-    const { dispatch, setFilteredList, filteredList, deleteTodo, getById, updateTodo,
+    const { setFilteredList, filteredList, deleteTodo,
         paginationModel, setPaginationModel, rowCount, sortModel, setSortModel, updateTodoDone,
-        selectedRows, setSelectedRows
+        selectedRows
      } = useContext( TodoContext );
 
 
@@ -23,28 +23,18 @@ export const TodoTable = () => {
         return [];
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: string) => {
         console.log('Borrar ID:', id);
         deleteTodo(id);
         
         setFilteredList(filteredList.filter( (todo:TodoInterface) => todo.id !== id));
     };
 
-
-    // useEffect(() => {
-    //     setFilteredList((filteredList: TodoInterface[]) =>
-    //         filteredList.map((filteredTodo: TodoInterface) => {
-    //         const updatedTodo = todos.find((todo: TodoInterface) => todo.id === filteredTodo.id);
-    //         return updatedTodo ? updatedTodo : filteredTodo;
-    //       })
-    //     );
-    // }, [todos]);
-
-    const handleToggleDone = async(newRowsSelected: String[]) => {
-        let difference: String[] | null = [];
+    const handleToggleDone = async(newRowsSelected: string[]) => {
+        let difference: string[] | null = [];
 
         if (newRowsSelected.length > selectedRows.length) {
-            newRowsSelected.forEach((id:String) => {
+            newRowsSelected.forEach((id:string) => {
                 console.log(id);
                 
                 if (!selectedRows.includes(id)) {
@@ -52,7 +42,7 @@ export const TodoTable = () => {
                 }
             });
         } else if (newRowsSelected.length < selectedRows.length) {
-            selectedRows.forEach((id:String) => {
+            selectedRows.forEach((id:string) => {
                 if (!newRowsSelected.includes(id)) {
                     difference?.push(id);                    
                 }
@@ -90,11 +80,13 @@ export const TodoTable = () => {
         return arr;
     };
 
-    const getRows = () => {
 
+ 
+    const getRows = () => {
         const arr: GridRowsProp[] = [];
-        filteredList.map((todo:TodoInterface) => {
-            const rowData: { id: string; [key: string]: any } = { id: todo.id };
+        filteredList.forEach((todo:TodoInterface) => {
+            // const rowData: { id: string | undefined; [key: string]: any } = { id: todo.id };
+            const rowData: GridRowsProp = { id: todo.id,  };
 
             columnKeys().forEach((key) => {
                 if (key === 'dueDate'){
@@ -105,7 +97,7 @@ export const TodoTable = () => {
                     }
                 }
                 else
-                    rowData[key] = todo[key];
+                    rowData[key] = todo[key as keyof TodoInterface];
             });
             arr.push(rowData);
         });
@@ -116,7 +108,7 @@ export const TodoTable = () => {
     const rows: GridRowsProp[] = getRows();
 
     const getRowStyle = (params: GridRowParams) => {
-        if ( params.row.dueDate == null) return;
+        if ( params.row.dueDate == null) return '';
         const dateFormatted = new Date(params.row.dueDate);
 
         const now = new Date();
@@ -137,15 +129,15 @@ export const TodoTable = () => {
             // More that 2 weeks between due date and today
             return 'bg-success'
         }
-        return {};
+        return '';
     };
 
-    const handlePaginationModelChange = (newPaginationModel) => {
+    const handlePaginationModelChange = (newPaginationModel: GridPaginationModel) => {
         // newPaginationModel : {page: 1, pageSize: 2}
         setPaginationModel(newPaginationModel);
     };
 
-    const handleSortModelChange = (newSortModel) => {
+    const handleSortModelChange = (newSortModel: React.SetStateAction<GridSortModel>) => {
         // sortModel : {field: 'id', sort: 'asc'}
         setSortModel(newSortModel);
     };
@@ -156,7 +148,7 @@ export const TodoTable = () => {
                     checkboxSelection
                     rows={rows}
                     columns={columns}
-                    getRowClassName={getRowStyle}
+                    getRowClassName={(params) => getRowStyle(params)}
                     rowCount={rowCount}
                     paginationModel={paginationModel}
                     onPaginationModelChange={handlePaginationModelChange}

@@ -35,7 +35,7 @@ describe('EditTodoButton', () => {
   test('opens modal with correct todo when button is clicked', () => {
     renderComponent('2'); // usamos string '2' porque ids son strings
 
-    fireEvent.click(screen.getByRole('button', { name: /editar/i }));
+    fireEvent.click(screen.getByRole('button', { name: /edit/i }));
 
     expect(screen.getByTestId('todo-modal')).toBeInTheDocument();
     expect(screen.getByText(/Test Todo 2/i)).toBeInTheDocument();
