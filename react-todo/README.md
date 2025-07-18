@@ -34,7 +34,7 @@ cd react-todo
 2. Set up environment variables:
 Copy the .env.template file and rename it to .env, then set your backend endpoint in VITE_API_URL:
 ```
-VITE_API_URL=http://localhost:9090/todos
+VITE_API_URL=http://localhost:9090/v1/todos
 ```
 3. Install dependencies:
 ```
