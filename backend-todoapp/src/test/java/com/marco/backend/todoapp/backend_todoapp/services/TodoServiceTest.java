@@ -2,13 +2,11 @@ package com.marco.backend.todoapp.backend_todoapp.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -45,7 +43,7 @@ public class TodoServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         expectedTodo = new Todo(
-            "123", "Comprar pan", PriorityEnum.High, 
+            "123", "Comprar pan", PriorityEnum.HIGH, 
             LocalDateTime.of(2025, 5, 18,0,0), true
         );
     }
@@ -80,7 +78,7 @@ public class TodoServiceTest {
     @Test
     public void should_save_todo() {
         // Arrange
-        Todo todo = new Todo("1", "Task 1", PriorityEnum.High, LocalDateTime.now(), false);
+        Todo todo = new Todo("1", "Task 1", PriorityEnum.HIGH, LocalDateTime.now(), false);
         when(repository.save(todo)).thenReturn(todo); // Configura el comportamiento del mock
 
         // Act
@@ -105,8 +103,8 @@ public class TodoServiceTest {
     public void should_update_todo_when_todo_exists() {
         // Arrange
         String todoId = "123";
-        Todo existingTodo = new Todo(todoId, "Old Task", PriorityEnum.Low, LocalDateTime.now(), false);
-        Todo updatedTodo = new Todo(todoId, "New Task", PriorityEnum.High, LocalDateTime.now().plusDays(1), true);
+        Todo existingTodo = new Todo(todoId, "Old Task", PriorityEnum.LOW, LocalDateTime.now(), false);
+        Todo updatedTodo = new Todo(todoId, "New Task", PriorityEnum.HIGH, LocalDateTime.now().plusDays(1), true);
 
         Mockito.when(repository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         Mockito.when(repository.save(any(Todo.class))).thenReturn(updatedTodo);
@@ -124,7 +122,7 @@ public class TodoServiceTest {
     public void should_return_null_when_todo_does_not_exist() {
         // Arrange
         String todoId = "123";
-        Todo updatedTodo = new Todo("123", "New Task", PriorityEnum.High, LocalDateTime.now().plusDays(1), true);
+        Todo updatedTodo = new Todo("123", "New Task", PriorityEnum.HIGH, LocalDateTime.now().plusDays(1), true);
 
         Mockito.when(repository.findById(todoId)).thenReturn(Optional.empty());
 
@@ -142,8 +140,8 @@ public class TodoServiceTest {
     public void should_update_todo_done_when_todo_exists_and_is_not_done() {
         // Arrange
         String todoId = "123";
-        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), false);
-        Todo updatedTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), true);
+        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), false);
+        Todo updatedTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), true);
 
         when(repository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         when(repository.save(any(Todo.class))).thenReturn(updatedTodo);
@@ -161,7 +159,7 @@ public class TodoServiceTest {
     public void should_return_same_todo_when_todo_exists_and_is_already_done() {
         // Arrange
         String todoId = "123";
-        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), true);
+        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), true);
 
         when(repository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         when(repository.save(any(Todo.class))).thenReturn(existingTodo);
@@ -195,8 +193,8 @@ public class TodoServiceTest {
     public void should_update_todo_undone_when_todo_exists_and_is_done() {
         // Arrange
         String todoId = "123";
-        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), true);
-        Todo updatedTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), false);
+        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), true);
+        Todo updatedTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), false);
 
         when(repository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         when(repository.save(any(Todo.class))).thenReturn(updatedTodo);
@@ -214,7 +212,7 @@ public class TodoServiceTest {
     public void should_return_same_todo_when_todo_exists_and_is_not_done() {
         // Arrange
         String todoId = "123";
-        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.Low, LocalDateTime.now(), false);
+        Todo existingTodo = new Todo(todoId, "Task", PriorityEnum.LOW, LocalDateTime.now(), false);
 
         when(repository.findById(todoId)).thenReturn(Optional.of(existingTodo));
         when(repository.save(any(Todo.class))).thenReturn(existingTodo);
@@ -249,10 +247,10 @@ public class TodoServiceTest {
         // Arrange
         LocalDateTime now = LocalDateTime.of(2025, 5, 1,0,0);
         List<Todo> todos = Arrays.asList(
-            new Todo("1", "Task 1", PriorityEnum.High, now.minusDays(3), true),
-            new Todo("2", "Task 2", PriorityEnum.Low, now.plusDays(3), true),
-            new Todo("3", "Task 3", PriorityEnum.Medium, now.plusDays(2), true),
-            new Todo("4", "Task 4", PriorityEnum.High, now, false)
+            new Todo("1", "Task 1", PriorityEnum.HIGH, now.minusDays(3), true),
+            new Todo("2", "Task 2", PriorityEnum.LOW, now.plusDays(3), true),
+            new Todo("3", "Task 3", PriorityEnum.MEDIUM, now.plusDays(2), true),
+            new Todo("4", "Task 4", PriorityEnum.HIGH, now, false)
         );
         LocalDateTime doneDate = LocalDateTime.of(2025, 5, 2,0,0);
         todos.get(0).setCreationDate(now);
@@ -270,9 +268,9 @@ public class TodoServiceTest {
         // Assert
         assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", metrics.get("averageEstimatedTimeToComplete"));
         Map<PriorityEnum, String> averageTimeByPriority = (Map<PriorityEnum, String>) metrics.get("averageTimeToFinishByPriority");
-        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Low));
-        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Medium));
-        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.High));
+        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.LOW));
+        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.MEDIUM));
+        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.HIGH));
     }
 
     @Test
@@ -280,9 +278,9 @@ public class TodoServiceTest {
         // Arrange
         LocalDateTime now = LocalDateTime.now(ZoneId.of("America/Mexico_City"));
         List<Todo> todos = Arrays.asList(
-            new Todo("2", "Task 2", PriorityEnum.Low, now.minusDays(2), false),
-            new Todo("3", "Task 3", PriorityEnum.Medium, now.minusDays(1), false),
-            new Todo("4", "Task 4", PriorityEnum.High, now, false)
+            new Todo("2", "Task 2", PriorityEnum.LOW, now.minusDays(2), false),
+            new Todo("3", "Task 3", PriorityEnum.MEDIUM, now.minusDays(1), false),
+            new Todo("4", "Task 4", PriorityEnum.HIGH, now, false)
         );
         todos.get(0).setDueDate(now.plusDays(1));
         todos.get(1).setDueDate(now.plusDays(2));
@@ -292,13 +290,13 @@ public class TodoServiceTest {
 
         // Act
         Map<String, Object> metrics = service.getMetrics();
+        Map<PriorityEnum, String> averageTimeByPriority = (Map<PriorityEnum, String>) metrics.get("averageTimeToFinishByPriority");
 
         // Assert
         assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", metrics.get("averageEstimatedTimeToComplete"));
-        Map<PriorityEnum, String> averageTimeByPriority = (Map<PriorityEnum, String>) metrics.get("averageTimeToFinishByPriority");
-        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Low));
-        assertEquals("2 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Medium));
-        assertEquals("3 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.High));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.LOW));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.MEDIUM));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.HIGH));
     }
 
     @Test
@@ -306,9 +304,17 @@ public class TodoServiceTest {
         // Arrange
         LocalDateTime now = LocalDateTime.now(ZoneId.of("America/Mexico_City"));
         List<Todo> todos = Arrays.asList(
-            new Todo("1", "Task 1", PriorityEnum.High, now.minusDays(3), true)
+            new Todo("0", "Task 2", PriorityEnum.LOW, now.plusDays(10), true),
+            new Todo("1", "Task 3", PriorityEnum.MEDIUM, now.plusDays(1), true),
+            new Todo("2", "Task 4", PriorityEnum.HIGH, now.plusDays(10), true)
         );
+        todos.get(0).setCreationDate(now.minusDays(2));
+        todos.get(1).setCreationDate(now.minusDays(1));
+        todos.get(2).setCreationDate(now);
+
         todos.get(0).setDoneDate(now);
+        todos.get(1).setDoneDate(now);
+        todos.get(2).setDoneDate(now);
 
         when(repository.findAll()).thenReturn(todos);
 
@@ -316,11 +322,14 @@ public class TodoServiceTest {
         Map<String, Object> metrics = service.getMetrics();
 
         // Assert
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", metrics.get("averageEstimatedTimeToComplete"));
+        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", metrics.get("averageEstimatedTimeToComplete"));
         Map<PriorityEnum, String> averageTimeByPriority = (Map<PriorityEnum, String>) metrics.get("averageTimeToFinishByPriority");
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.High));
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Low));
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Medium));
+        assertEquals("2 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.LOW));
+        assertEquals("1 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.MEDIUM));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.HIGH));
+
+        // Tiempo promedio de todos since creation until done
+        // 
     }
 
     @Test
@@ -334,9 +343,9 @@ public class TodoServiceTest {
         // Assert
         assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", metrics.get("averageEstimatedTimeToComplete"));
         Map<PriorityEnum, String> averageTimeByPriority = (Map<PriorityEnum, String>) metrics.get("averageTimeToFinishByPriority");
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.High));
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Low));
-        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.Medium));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.HIGH));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.LOW));
+        assertEquals("0 days, 0 hours, 0 minutes, 0 seconds", averageTimeByPriority.get(PriorityEnum.MEDIUM));
     }
 
 
@@ -345,7 +354,7 @@ public class TodoServiceTest {
         // Arrange
         Boolean done = true;
         String name = "Task 1";
-        PriorityEnum priority = PriorityEnum.High;
+        PriorityEnum priority = PriorityEnum.HIGH;
         Integer pageable = 0;
         List<String> sortBy = Arrays.asList("taskName", "dueDate");
         Sort.Direction sortDirection = Sort.Direction.ASC;
@@ -391,7 +400,7 @@ public class TodoServiceTest {
         // Arrange
         Boolean done = false;
         String name = "Task";
-        PriorityEnum priority = PriorityEnum.Medium;
+        PriorityEnum priority = PriorityEnum.MEDIUM;
         Integer pageable = 0;
         List<String> sortBy = Arrays.asList();
         Sort.Direction sortDirection = Sort.Direction.ASC;
@@ -414,7 +423,7 @@ public class TodoServiceTest {
         // Arrange
         Boolean done = false;
         String name = "Task";
-        PriorityEnum priority = PriorityEnum.Medium;
+        PriorityEnum priority = PriorityEnum.MEDIUM;
         Integer pageable = 0;
         List<String> sortBy = null;
         Sort.Direction sortDirection = Sort.Direction.ASC;

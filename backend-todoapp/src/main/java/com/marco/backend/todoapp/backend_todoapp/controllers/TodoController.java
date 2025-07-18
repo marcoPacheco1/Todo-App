@@ -1,44 +1,47 @@
 package com.marco.backend.todoapp.backend_todoapp.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.marco.backend.todoapp.backend_todoapp.models.entities.PriorityEnum;
 import com.marco.backend.todoapp.backend_todoapp.models.entities.Todo;
+import com.marco.backend.todoapp.backend_todoapp.models.entities.TodosSearchRequest;
 import com.marco.backend.todoapp.backend_todoapp.services.ITodoService;
 
 import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/v1")
 @CrossOrigin(origins = "*")
 public class TodoController {
     @Autowired
     private ITodoService service;
 
     @GetMapping("/todos")
-    public Map<String, Object> getTodos(
-        @RequestParam(required = false, defaultValue = "0") Integer page,
-        @RequestParam(required = false) Boolean done,
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) PriorityEnum priority,
-        @RequestParam(required = false) List<String>  sortBy,
-        @RequestParam(required = false) Sort.Direction sortDirection
+    public ResponseEntity<?> getTodos(
+        @Valid @ModelAttribute TodosSearchRequest request, BindingResult bindingResult
     ) {
-        return this.service.getTodosFiltered(done, name, priority, page, sortBy, sortDirection);
+        if (bindingResult.hasErrors()) {
+            List<String> errors = new ArrayList<>();
+            bindingResult.getAllErrors().forEach(error -> errors.add(error.getDefaultMessage()));
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(this.service.getTodosFiltered(request.getDone(), request.getName(), request.getPriority(), request.getPage(), request.getSortBy(), request.getSortDirection()));
     }
 
 

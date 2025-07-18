@@ -39,7 +39,7 @@ export const defaultContext: TodoContextType = {
     sortModel: [],
     setSortModel: () => {},
     metricModel: {
-      averageTimeToFinishByPriority: { Low: '', Medium: '', High: '' },
+      averageTimeToFinishByPriority: { LOW: '', MEDIUM: '', HIGH: '' },
       averageEstimatedTimeToComplete: '',
     },
     updateTodoDone: async () => {},

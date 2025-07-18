@@ -4,7 +4,7 @@ export interface MetricsInterface {
 }
 
 export interface AverageTimeToFinishByPriority {
-    Low:    string;
-    Medium: string;
-    High:   string;
+    LOW:    string;
+    MEDIUM: string;
+    HIGH:   string;
 }

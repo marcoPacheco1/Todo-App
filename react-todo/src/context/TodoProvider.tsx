@@ -34,9 +34,9 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
 
     const [metricModel, setMetricModel] = useState<MetricsInterface>({
         averageTimeToFinishByPriority: {
-            Low: '',
-            Medium: '',
-            High: '',
+            LOW: '',
+            MEDIUM: '',
+            HIGH: '',
         },
         averageEstimatedTimeToComplete: '', 
     });

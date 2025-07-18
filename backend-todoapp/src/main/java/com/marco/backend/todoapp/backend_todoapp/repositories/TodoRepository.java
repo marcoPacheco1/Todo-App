@@ -1,7 +1,5 @@
 package com.marco.backend.todoapp.backend_todoapp.repositories;
 
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -30,27 +28,27 @@ public class TodoRepository implements ITodoRepository{
     private static final int pageElements = 10;
 
     public static List<Todo> todosSimulados = new ArrayList<>(Arrays.asList(
-        new Todo("1", "Buy bread", PriorityEnum.High, LocalDateTime.of(2025, 5, 18, 0, 0), true),
-        new Todo("2", "Pay bills", PriorityEnum.High, LocalDateTime.of(2025, 6, 1, 0, 0), false),
-        new Todo("3", "Study react", PriorityEnum.Low, LocalDateTime.of(2025, 3, 1, 0, 0), false),
-        new Todo("4", "Practice unit tests in react", PriorityEnum.Low, null, false),
-        new Todo("5", "Go to the gym", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 20, 10, 0), false),
-        new Todo("6", "Read a book", PriorityEnum.Low, LocalDateTime.of(2025, 7, 15, 18, 30), false),
-        new Todo("7", "Write a blog post", PriorityEnum.High, null, false),
-        new Todo("8", "Meet with John", PriorityEnum.High, null, false),
-        new Todo("9", "Cook dinner", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 16, 19, 0), false),
-        new Todo("10", "Walk the dog", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 17, 7, 0), false),
-        new Todo("11", "Do laundry", PriorityEnum.Low, LocalDateTime.of(2025, 4, 19, 11, 0), false),
-        new Todo("12", "Call mom", PriorityEnum.High, LocalDateTime.of(2025, 4, 18, 16, 0), false),
-        new Todo("13", "Plan vacation", PriorityEnum.Medium, LocalDateTime.of(2025, 5, 25, 15, 0), false),
-        new Todo("14", "Clean the house", PriorityEnum.Medium, LocalDateTime.of(2025, 4, 21, 10, 0), false),
-        new Todo("15", "Water the plants", PriorityEnum.Low, LocalDateTime.of(2025, 4, 17, 8, 0), false),
-        new Todo("16", "Review code", PriorityEnum.High, null, false),
-        new Todo("17", "Prepare presentation", PriorityEnum.High, LocalDateTime.of(2025, 4, 25, 14, 30), false),
-        new Todo("18", "Fix bug in production", PriorityEnum.High, LocalDateTime.now().plusDays(1), false),
-        new Todo("19", "Test new feature", PriorityEnum.Medium, LocalDateTime.now().plusDays(3), false),
-        new Todo("20", "Refactor database layer", PriorityEnum.Medium, LocalDateTime.of(2025, 7, 1, 0, 0), false),
-        new Todo("21", "Learn a new programming language", PriorityEnum.Low, null, false)
+        new Todo("1", "Buy bread", PriorityEnum.HIGH, LocalDateTime.of(2025, 5, 18, 0, 0), true),
+        new Todo("2", "Pay bills", PriorityEnum.HIGH, LocalDateTime.of(2025, 6, 1, 0, 0), false),
+        new Todo("3", "Study react", PriorityEnum.LOW, LocalDateTime.of(2025, 3, 1, 0, 0), false),
+        new Todo("4", "Practice unit tests in react", PriorityEnum.LOW, null, false),
+        new Todo("5", "Go to the gym", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 4, 20, 10, 0), false),
+        new Todo("6", "Read a book", PriorityEnum.LOW, LocalDateTime.of(2025, 7, 15, 18, 30), false),
+        new Todo("7", "Write a blog post", PriorityEnum.HIGH, null, false),
+        new Todo("8", "Meet with John", PriorityEnum.HIGH, null, false),
+        new Todo("9", "Cook dinner", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 4, 16, 19, 0), false),
+        new Todo("10", "Walk the dog", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 4, 17, 7, 0), false),
+        new Todo("11", "Do laundry", PriorityEnum.LOW, LocalDateTime.of(2025, 4, 19, 11, 0), false),
+        new Todo("12", "Call mom", PriorityEnum.HIGH, LocalDateTime.of(2025, 4, 18, 16, 0), false),
+        new Todo("13", "Plan vacation", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 5, 25, 15, 0), false),
+        new Todo("14", "Clean the house", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 4, 21, 10, 0), false),
+        new Todo("15", "Water the plants", PriorityEnum.LOW, LocalDateTime.of(2025, 4, 17, 8, 0), false),
+        new Todo("16", "Review code", PriorityEnum.HIGH, null, false),
+        new Todo("17", "Prepare presentation", PriorityEnum.HIGH, LocalDateTime.of(2025, 4, 25, 14, 30), false),
+        new Todo("18", "Fix bug in production", PriorityEnum.HIGH, LocalDateTime.now().plusDays(1), false),
+        new Todo("19", "Test new feature", PriorityEnum.MEDIUM, LocalDateTime.now().plusDays(3), false),
+        new Todo("20", "Refactor database layer", PriorityEnum.MEDIUM, LocalDateTime.of(2025, 7, 1, 0, 0), false),
+        new Todo("21", "Learn a new programming language", PriorityEnum.LOW, null, false)
     ));
         
     @Override
@@ -148,73 +146,11 @@ public class TodoRepository implements ITodoRepository{
         return response;
     }
 
-
-
-
-    // @Override
-    // public Page<Todo> findByDone(Boolean done, Pageable pageable) {
-    //     List<Todo> filtered = todosSimulados.stream()
-    //             .filter(todo -> todo.getDone() == done)
-    //             .collect(Collectors.toList());
-    //     return getPage(filtered, pageable);
-    // }
-
-    // @Override
-    // public Page<Todo> findByNameContaining(String name, Pageable pageable) {
-    //     List<Todo> filtered = todosSimulados.stream()
-    //             .filter(todo -> todo.getName().contains(name))
-    //             .collect(Collectors.toList());
-    //     return getPage(filtered, pageable);
-    // }
-
-    // @Override
-    // public Page<Todo> findByPriority(Integer priority, Pageable pageable) {
-    //     List<Todo> filtered = todosSimulados.stream()
-    //             .filter(todo -> todo.getPriority().ordinal() == priority)
-    //             .collect(Collectors.toList());
-    //     return getPage(filtered, pageable);
-    // }
-
-    // @Override
-    // public Page<Todo> findByDoneAndNameContaining(Boolean done, String name, Pageable pageable) {
-    //     List<Todo> filtered = todosSimulados.stream()
-    //             .filter(todo -> todo.getDone() == done && todo.getName().contains(name))
-    //             .collect(Collectors.toList());
-    //     return getPage(filtered, pageable);
-    // }
-
-    // @Override
-    // public Page<Todo> findByDoneAndPriority(Boolean done, Integer priority, Pageable pageable) {
-    //     List<Todo> filtered = todosSimulados.stream()
-    //             .filter(todo -> todo.getName().contains(name) && todo.getPriority().ordinal() == priority)
-    //             .collect(Collectors.toList());
-    //     return getPage(filtered, pageable);
-    // }
-
-    // @Override
-    // public Page<Todo> findByNameContainingAndPriority(String name, Integer priority, Pageable pageable) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'findByNameContainingAndPriority'");
-    // }
-
-
-
-
-
-
     @Override
     public Todo getReferenceById(String id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findById'");
     }
-
-    // @Override
-    // public Optional<Todo> findById(String id) {
-        
-    //     return todosSimulados.stream()
-    //         .filter(todo -> todo.getId().equals(id))
-    //         .findFirst();
-    // }
 
 
     @Override

@@ -18,9 +18,9 @@ export const Metrics = () => {
           
           <div className="col">
             <h6 className="mb-0">Average time to finish tasks by priority:</h6>
-            <p className="mb-0">High: {metricModel.averageTimeToFinishByPriority.High}</p>
-            <p className="mb-0">Medium: {metricModel.averageTimeToFinishByPriority.Medium}</p>
-            <p className="mb-0">Low: {metricModel.averageTimeToFinishByPriority.Low}</p>
+            <p className="mb-0">High: {metricModel.averageTimeToFinishByPriority.HIGH}</p>
+            <p className="mb-0">Medium: {metricModel.averageTimeToFinishByPriority.MEDIUM}</p>
+            <p className="mb-0">Low: {metricModel.averageTimeToFinishByPriority.LOW}</p>
           </div>
         </div>
       </div>

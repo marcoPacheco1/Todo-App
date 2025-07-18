@@ -38,18 +38,18 @@ public class TodoRepositoryTest {
         MockitoAnnotations.openMocks(this);
         repository = new TodoRepository();
         expectedTodos = Arrays.asList(
-            new Todo("1", "Buy bread", PriorityEnum.High, LocalDateTime.of(2025, 5, 18, 0, 0), true),
-            new Todo("2", "Pay bills", PriorityEnum.High, LocalDateTime.of(2025, 6, 1, 0, 0), false),
-            new Todo("3", "Study react", PriorityEnum.Low, LocalDateTime.of(2025, 3, 1, 0, 0), false)
+            new Todo("1", "Buy bread", PriorityEnum.HIGH, LocalDateTime.of(2025, 5, 18, 0, 0), true),
+            new Todo("2", "Pay bills", PriorityEnum.HIGH, LocalDateTime.of(2025, 6, 1, 0, 0), false),
+            new Todo("3", "Study react", PriorityEnum.LOW, LocalDateTime.of(2025, 3, 1, 0, 0), false)
         );
         TodoRepository.todosSimulados.clear(); 
 
         TodoRepository.todosSimulados = new ArrayList<>(Arrays.asList(
-        new Todo("1", "Buy bread", PriorityEnum.High, 
+        new Todo("1", "Buy bread", PriorityEnum.HIGH, 
             LocalDateTime.of(2025, 5, 18,0,0), true),
-        new Todo("2", "Pay bills", PriorityEnum.High, 
+        new Todo("2", "Pay bills", PriorityEnum.HIGH, 
             LocalDateTime.of(2025, 6, 1,0,0), false),
-        new Todo("3", "Study react", PriorityEnum.Low, 
+        new Todo("3", "Study react", PriorityEnum.LOW, 
             LocalDateTime.of(2025, 3, 1,0,0), false)
         ));
     }
@@ -67,7 +67,7 @@ public class TodoRepositoryTest {
         Todo firstTodo = result.get(0);
         assertEquals("1", firstTodo.getId());
         assertEquals("Buy bread", firstTodo.getTaskName());
-        assertEquals(PriorityEnum.High, firstTodo.getPriority());
+        assertEquals(PriorityEnum.HIGH, firstTodo.getPriority());
         assertEquals(LocalDateTime.of(2025, 5, 18, 0, 0), firstTodo.getDueDate());
         assertTrue(firstTodo.getDone());
     }
@@ -86,7 +86,7 @@ public class TodoRepositoryTest {
         Todo todo = result.get();
         assertEquals("2", todo.getId());
         assertEquals("Pay bills", todo.getTaskName());
-        assertEquals(PriorityEnum.High, todo.getPriority());
+        assertEquals(PriorityEnum.HIGH, todo.getPriority());
         assertEquals(LocalDateTime.of(2025, 6, 1, 0, 0), todo.getDueDate());
         assertFalse(todo.getDone());
     }
@@ -105,7 +105,7 @@ public class TodoRepositoryTest {
     @Test
     public void test_save_creates_new_todo_when_id_is_null() {
         // Arrange
-        Todo newTodo = new Todo(null, "New Task", PriorityEnum.Low, LocalDateTime.now(), false);
+        Todo newTodo = new Todo(null, "New Task", PriorityEnum.LOW, LocalDateTime.now(), false);
 
         // Act
         Todo savedTodo = repository.save(newTodo);
@@ -122,7 +122,7 @@ public class TodoRepositoryTest {
     public void test_save_updates_existing_todo_when_id_is_not_null() {
         // Arrange
         Todo existingTodo = repository.findAll().get(0);
-        Todo updatedTodo = new Todo(existingTodo.getId(), "Updated Task", PriorityEnum.High, LocalDateTime.now().plusDays(1), true);
+        Todo updatedTodo = new Todo(existingTodo.getId(), "Updated Task", PriorityEnum.HIGH, LocalDateTime.now().plusDays(1), true);
 
         // Act
         Todo savedTodo = repository.save(updatedTodo);
@@ -169,7 +169,7 @@ public class TodoRepositoryTest {
         // Arrange
         Boolean done = false;
         String name = "study";
-        PriorityEnum priority = PriorityEnum.Low;
+        PriorityEnum priority = PriorityEnum.LOW;
         Integer page = 0;
         List<String> sortBy = Arrays.asList("dueDate");
         Sort.Direction sortDirection = Sort.Direction.ASC;
@@ -207,7 +207,7 @@ public class TodoRepositoryTest {
     public void test_getFiltered_filters_by_name_and_priority() {
         // Arrange
         String name = "bread";
-        PriorityEnum priority = PriorityEnum.High;
+        PriorityEnum priority = PriorityEnum.HIGH;
 
         // Act
         Map<String, Object> result = repository.getFiltered(null, name, priority, 0, null, null);
@@ -263,4 +263,22 @@ public class TodoRepositoryTest {
         assertEquals("Buy bread", filteredTodos.get(1).getTaskName());
         assertEquals("Pay bills", filteredTodos.get(2).getTaskName());
     }
+
+
+    @Test
+    public void test_getFiltered_with_empty_sortBy() {
+        // Arrange
+        List<String> sortBy = new ArrayList<>();
+
+        // Act
+        Map<String, Object> result = repository
+            .getFiltered(null, null, null, 0, sortBy, null);
+        List<Todo> filteredTodos = (List<Todo>) result.get("fileredTodo");
+
+        // Assert
+        assertEquals(3, filteredTodos.size());
+    }
+
+
+
 }
