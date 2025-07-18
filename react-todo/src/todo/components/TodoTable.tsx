@@ -32,9 +32,7 @@ export const TodoTable = () => {
     const handleToggleDone = async(newRowsSelected: string[]) => {
         let difference: string[] | null = [];        
         if (newRowsSelected.length > selectedRows.length) {
-            newRowsSelected.forEach((id:string) => {
-                console.log(id);
-                
+            newRowsSelected.forEach((id:string) => {                
                 if (!selectedRows.includes(id)) {
                     difference?.push(id);                    
                 }
@@ -132,8 +130,6 @@ export const TodoTable = () => {
 
     const handlePaginationModelChange = (newPaginationModel: GridPaginationModel) => {
         // newPaginationModel : {page: 1, pageSize: 2}
-        console.log("nueva pagina");
-        
         setPaginationModel(newPaginationModel);
     };
 

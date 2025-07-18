@@ -43,7 +43,6 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
 
     const getAll = async(params?: URLSearchParams ) =>{
         try {
-            console.log('params', params);
             if (!params) {
                 params = new URLSearchParams();
             }
@@ -119,7 +118,6 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
 
     const postTodo = async(formValues:ModalInsertFormInput) =>{
         try {
-            console.log('llamando a post back res:', formValues);
             const { data } = await todoApi.post('', formValues,{
                 headers: {
                     'Content-Type': 'application/json;charset=UTF-8'
@@ -127,8 +125,7 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
             } );
             await updateRecords();         
         } catch (error) {
-            console.log("There was an error");
-            console.log(error);
+            console.log("There was an error: ", error);
         }
     }
 
@@ -153,9 +150,6 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
             setSelectedRows((prevSelectedRows) => {
                 let newSelectedRows = [...prevSelectedRows];
                 results.forEach((result:TodoInterface) => {
-                    console.log("Result from updateTodoDone: ");
-                    
-                    console.log(result);
                     if (result.done && result?.id) {
                         if (!newSelectedRows.includes(result.id)) {
                             newSelectedRows.push(result.id);
@@ -210,14 +204,12 @@ export const TodoProvider = ({ children }: TodoProviderProps) => {
     const contextValue = useMemo(() => ({
         filteredList,
         setFilteredList,
-        // todos, dispatch,
         isLoading,
         getAll, postTodo, updateTodo, deleteTodo, getById,
         paginationModel, rowCount, setPaginationModel,
         sortModel, setSortModel, metricModel, updateTodoDone, selectedRows, setSelectedRows
       }), [
         filteredList, setFilteredList,
-        // todos, dispatch,
         isLoading,
         getAll, postTodo, updateTodo, deleteTodo, getById,
         paginationModel, rowCount, setPaginationModel,

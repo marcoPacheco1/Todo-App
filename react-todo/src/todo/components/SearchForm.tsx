@@ -59,8 +59,7 @@ export const SearchForm = () => {
         const url =`?${queryString.toString()}`;
 
         navigate(url, { replace: true });
-        console.log('parametros URL:', params);
-        await getAll(params);
+        await getAll(queryParams);
     }
 
     const onSearchSubmit = async(event: React.FormEvent<HTMLFormElement>) =>{
